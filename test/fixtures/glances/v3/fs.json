@@ -1,0 +1,222 @@
+[
+  {
+    "device_name": "/dev/nvme0n1p2",
+    "fs_type": "ext4",
+    "mnt_point": "/srv/media",
+    "size": 502392610816,
+    "used": 385362964480,
+    "free": 91434274816,
+    "percent": 80.8,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "/dev/nvme0n1p2",
+    "fs_type": "ext4",
+    "mnt_point": "/etc/resolv.conf",
+    "size": 502392610816,
+    "used": 385362964480,
+    "free": 91434274816,
+    "percent": 80.8,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "/dev/nvme0n1p2",
+    "fs_type": "ext4",
+    "mnt_point": "/etc/hostname",
+    "size": 502392610816,
+    "used": 385362964480,
+    "free": 91434274816,
+    "percent": 80.8,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "/dev/nvme0n1p2",
+    "fs_type": "ext4",
+    "mnt_point": "/etc/hosts",
+    "size": 502392610816,
+    "used": 385362964480,
+    "free": 91434274816,
+    "percent": 80.8,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/dev",
+    "size": 67108864,
+    "used": 0,
+    "free": 67108864,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "shm",
+    "fs_type": "tmpfs",
+    "mnt_point": "/dev/shm",
+    "size": 67108864,
+    "used": 0,
+    "free": 67108864,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/mnt/data",
+    "size": 67108864,
+    "used": 0,
+    "free": 67108864,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/srv/backup",
+    "size": 33554432,
+    "used": 0,
+    "free": 33554432,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/proc/asound",
+    "size": 8268857344,
+    "used": 0,
+    "free": 8268857344,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/proc/acpi",
+    "size": 8268857344,
+    "used": 0,
+    "free": 8268857344,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/proc/interrupts",
+    "size": 67108864,
+    "used": 0,
+    "free": 67108864,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/proc/kcore",
+    "size": 67108864,
+    "used": 0,
+    "free": 67108864,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/proc/keys",
+    "size": 67108864,
+    "used": 0,
+    "free": 67108864,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/proc/latency_stats",
+    "size": 67108864,
+    "used": 0,
+    "free": 67108864,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/proc/timer_list",
+    "size": 67108864,
+    "used": 0,
+    "free": 67108864,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/proc/scsi",
+    "size": 8268857344,
+    "used": 0,
+    "free": 8268857344,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/sys/firmware",
+    "size": 8268857344,
+    "used": 0,
+    "free": 8268857344,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/sys/devices/virtual/powercap",
+    "size": 8268857344,
+    "used": 0,
+    "free": 8268857344,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/sys/devices/system/cpu/cpu0/thermal_throttle",
+    "size": 8268857344,
+    "used": 0,
+    "free": 8268857344,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/sys/devices/system/cpu/cpu1/thermal_throttle",
+    "size": 8268857344,
+    "used": 0,
+    "free": 8268857344,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/sys/devices/system/cpu/cpu2/thermal_throttle",
+    "size": 8268857344,
+    "used": 0,
+    "free": 8268857344,
+    "percent": 0.0,
+    "key": "mnt_point"
+  },
+  {
+    "device_name": "tmpfs",
+    "fs_type": "tmpfs",
+    "mnt_point": "/sys/devices/system/cpu/cpu3/thermal_throttle",
+    "size": 8268857344,
+    "used": 0,
+    "free": 8268857344,
+    "percent": 0.0,
+    "key": "mnt_point"
+  }
+]

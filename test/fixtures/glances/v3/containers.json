@@ -1,0 +1,150 @@
+{
+  "version": {},
+  "version_podman": {},
+  "containers": [
+    {
+      "key": "name",
+      "name": "backup-job",
+      "Id": "d1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90",
+      "Status": "exited",
+      "Created": "2026-10-01T10:00:00.000000000Z",
+      "Command": ["run"],
+      "Image": ["example/image:latest"],
+      "io": {},
+      "cpu": {},
+      "memory": {},
+      "network": {},
+      "io_r": null,
+      "io_w": null,
+      "cpu_percent": null,
+      "memory_percent": null,
+      "network_rx": null,
+      "network_tx": null,
+      "Uptime": null,
+      "engine": "docker"
+    },
+    {
+      "key": "name",
+      "name": "jellyfin",
+      "Id": "c1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90",
+      "Status": "running",
+      "Created": "2026-10-01T10:00:00.000000000Z",
+      "Command": ["run"],
+      "Image": ["example/image:latest"],
+      "io": {
+        "cumulative_ior": 163840,
+        "cumulative_iow": 327680,
+        "time_since_update": 4,
+        "ior": 20480,
+        "iow": 40960
+      },
+      "memory": {
+        "usage": 1073741824,
+        "limit": 16537718784,
+        "rss": null,
+        "max_usage": null,
+        "cache": null
+      },
+      "network": {
+        "cumulative_rx": 40000,
+        "cumulative_tx": 20000,
+        "time_since_update": 4,
+        "rx": 5000,
+        "tx": 2500
+      },
+      "cpu": {
+        "total": 12.0
+      },
+      "cpu_percent": 12.0,
+      "memory_usage": 1073741824,
+      "io_r": 20480,
+      "io_w": 40960,
+      "network_rx": 5000,
+      "network_tx": 2500,
+      "Uptime": "3 hours",
+      "engine": "docker"
+    },
+    {
+      "key": "name",
+      "name": "mariadb",
+      "Id": "b1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90",
+      "Status": "running",
+      "Created": "2026-10-01T10:00:00.000000000Z",
+      "Command": ["run"],
+      "Image": ["example/image:latest"],
+      "io": {
+        "cumulative_ior": 163840,
+        "cumulative_iow": 327680,
+        "time_since_update": 4,
+        "ior": 20480,
+        "iow": 40960
+      },
+      "memory": {
+        "usage": 314572800,
+        "limit": 16537718784,
+        "rss": null,
+        "max_usage": null,
+        "cache": null
+      },
+      "network": {
+        "cumulative_rx": 40000,
+        "cumulative_tx": 20000,
+        "time_since_update": 4,
+        "rx": 5000,
+        "tx": 2500
+      },
+      "cpu": {
+        "total": 2.0
+      },
+      "cpu_percent": 2.0,
+      "memory_usage": 314572800,
+      "io_r": 20480,
+      "io_w": 40960,
+      "network_rx": 5000,
+      "network_tx": 2500,
+      "Uptime": "3 hours",
+      "engine": "docker"
+    },
+    {
+      "key": "name",
+      "name": "nextcloud",
+      "Id": "a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90",
+      "Status": "running",
+      "Created": "2026-10-01T10:00:00.000000000Z",
+      "Command": ["run"],
+      "Image": ["example/image:latest"],
+      "io": {
+        "cumulative_ior": 163840,
+        "cumulative_iow": 327680,
+        "time_since_update": 4,
+        "ior": 20480,
+        "iow": 40960
+      },
+      "memory": {
+        "usage": 524288000,
+        "limit": 16537718784,
+        "rss": null,
+        "max_usage": null,
+        "cache": null
+      },
+      "network": {
+        "cumulative_rx": 40000,
+        "cumulative_tx": 20000,
+        "time_since_update": 4,
+        "rx": 5000,
+        "tx": 2500
+      },
+      "cpu": {
+        "total": 6.0
+      },
+      "cpu_percent": 6.0,
+      "memory_usage": 524288000,
+      "io_r": 20480,
+      "io_w": 40960,
+      "network_rx": 5000,
+      "network_tx": 2500,
+      "Uptime": "3 hours",
+      "engine": "docker"
+    }
+  ]
+}

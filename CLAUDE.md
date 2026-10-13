@@ -16,8 +16,8 @@ its only runtime dependency. It started from the official JavaScript template.
 ```bash
 npm install
 npm test                                  # node --test, the built-in runner
-node --test test/devices.test.js          # one file
-node --test --test-name-pattern "plug"    # tests whose name matches
+node --test test/hub.test.js              # one file
+node --test --test-name-pattern "disk"    # tests whose name matches
 npm run lint                              # ESLint
 npm run format:check                      # Prettier, as the CI runs it
 npm run format                            # Prettier, fix in place
@@ -31,16 +31,23 @@ pushing.
 ## Architecture
 
 ```
-index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
+index.js                          SDK wiring only: src/app.js registers the handlers before connect()
+src/app.js                        every SDK handler -> the hub (also used by the tests)
+src/hub.js                        servers, reading timer, states (budget), scene events, views
+src/alerts.js                     transitions of disks, sensors, containers (thresholds, debounce)
+src/devices.js                    server, disk, interface, sensor, container devices; names (4 languages)
+src/glances/client.js             REST API v4/v3: version detection, one GET per plugin, errors by kind
+src/glances/model.js              raw plugins -> one snapshot, the same for v3 and v4
+src/glances/http.js               node:http/https request (self-signed certificates on request)
 src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
+src/widgets.js                    dashboard widget `server` (manifest `widgets`)
+src/texts.js                      connection, error, report, summary texts (4 languages), formats
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
-gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
+src/store.js                      /data/glances-state.json (what the triggers compare with)
+gladys-assistant-integration.json manifest: name, config_schema, actions, triggers, widget...
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (en and fr mandatory)
 test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+                                  and helpers/fakeGlances.js (real answers in test/fixtures/glances)
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -70,8 +77,9 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** exists in English, French, German and Spanish: action
+  messages, widget texts, feature names, manifest texts, and
+  `docs/{en,fr,de,es}.md`, kept in sync (`test/i18n.test.js`).
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -177,6 +185,57 @@ code de ce dépôt. Compléter ce fichier quand un nouveau piège est découvert
 - Les filtres de scène ne font qu'égalité et appartenance : un seuil reste le travail d'un capteur.
 - **Les clés de widgets, de déclencheurs et d'actions sont figées une fois publiées.**
 - `gladys_version` `>=5.1.0` dès qu'il y a widgets, déclencheurs ou actions de scène.
+
+## Glances (propre à ce dépôt)
+
+- **API lue** : REST du serveur web de Glances (`glances -w`, port 61208), **v4** (Glances 4.x) et
+  **v3** (Glances 3.x). Version détectée par `/api/<v>/pluginslist` : un Glances 4 répond **404**
+  sous `/api/3` et inversement. Un plugin désactivé (`--disable-plugin`) est **absent de
+  `pluginslist` et répond 400**. Une lecture = un GET par plugin (`cpu`, `load`, `mem`, `memswap`,
+  `uptime`, `fs`, `network`, `sensors`, `containers`) ; **jamais `/all`**, qui embarque la liste
+  des processus (des centaines de Ko). `system` et `version` (Glances 4 seulement) à la détection,
+  refaite toutes les heures et sur un 404 (Glances mis à jour sur place).
+- **Authentification** : `glances -w --password`, HTTP Basic, utilisateur `glances` sauf
+  `--username`. Mauvais mot de passe et mauvais utilisateur : 401 identiques. Pour un Glances en
+  Docker sans terminal, le mot de passe se pose par le fichier `~/.config/glances/glances.pwd` :
+  `sel$pbkdf2_sha256(pbkdf2_sha256(clair, ''), sel)` en hex, 100 000 tours, dklen 128.
+- **Différences v3/v4** (fixtures réelles) : réseau, v4 `bytes_recv_rate_per_sec`, v3 `rx` /
+  `time_since_update`, et **v4 n'a plus `is_up`** ; conteneurs, v4 une liste avec `status`
+  (**le statut de santé remplace « running »** : `healthy`, `unhealthy`, `starting`), v3 un objet
+  `{ version, containers }` avec `Status` ; Glances ≤ 3.3 nomme le plugin `docker`. La **première
+  lecture d'un Glances 4 fraîchement lancé renvoie des zéros partout** (`cpu.total` et `idle` à 0) :
+  ignorée. Glances 4 ne relit les disques que **toutes les 60 s** (`[fs] refresh=60`).
+- **Conteneurs** : par défaut Glances ne liste **que les conteneurs en marche** (`[containers]
+all=False`) : un conteneur arrêté disparaît de la réponse. « Conteneur arrêté » = vu en marche
+  puis absent ou arrêté **deux lectures de suite** (une recréation `docker compose` tient dans
+  l'intervalle). L'identité d'un conteneur est son **nom**, pas son id (qui change à chaque
+  recréation).
+- **Nom d'hôte** : un Glances en Docker donne l'**id de son conteneur** (12 hex) comme nom d'hôte,
+  qui change à chaque mise à jour : jamais une identité ; nom affiché = nom configuré, sinon nom
+  d'hôte s'il n'a pas cette forme, sinon l'adresse. Identité d'un serveur = son **emplacement** (1
+  à 3) dans la configuration.
+- **Disques** écartés : fichiers que Docker monte dans le conteneur (`/etc/hosts`, `/etc/hostname`,
+  `/etc/resolv.conf`) et pseudo-FS `/proc`, `/sys`, `/dev` (visibles avec `[fs] allow=tmpfs`).
+  **Interfaces** écartées : `lo`, `veth*`, `br-<hex>`, `docker0`, tunnels.
+- **Seuils et filtres de scène** : le cœur ne compare qu'à l'égalité ; chaque déclencheur à seuil
+  porte un filtre `threshold` (select requis) parmi des paliers fixes, et l'intégration émet **un
+  événement par palier franchi** (`DISK_THRESHOLDS`, `TEMPERATURE_THRESHOLDS` de `src/alerts.js`,
+  liés au manifeste par `test/manifest.test.js`). Disque : réarmé 2 points sous le palier.
+  Température : confirmée sur deux lectures, réarmée 5 °C dessous, 30 min entre deux annonces
+  (un processeur bondit à chaque compilation). Premier passage : enregistré, pas annoncé.
+- **Catégories** : le cœur n'a **pas de catégorie « pourcentage » générique** ; les taux
+  d'utilisation sont en `level-sensor/liquid-level-percent` (bornes 0-100, jauge correcte), la
+  charge en `unknown/unknown` (trois sur le serveur, donc noms affichés). Le front n'affiche le
+  nom publié que si une **autre fonctionnalité de l'appareil a le même `type`** (comparaison sur
+  le type seul, pas la catégorie : `front/src/utils/device.js`).
+- **Budget d'états** : seulement les appareils ajoutés, seulement les changements (arrondis), les
+  valeurs « bruyantes » (CPU, charge, débits, températures, conteneurs en marche) au plus une fois
+  par minute, un plafond de 240 états/min, et un **renvoi toutes les 6 h** d'une valeur inchangée
+  (le cœur marque une valeur « trop ancienne » après 48 h, `DEVICE_STATE_NUMBER_OF_HOURS_BEFORE_STATE_IS_OUTDATED`).
+
+## Vérifié sur un vrai Glances
+
+(à compléter après les essais Docker)
 
 ## Store
 

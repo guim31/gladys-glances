@@ -1,177 +1,1199 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "Glances",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "Follow your NAS, servers and PCs with Glances: CPU, memory, disks, temperatures, containers.",
+    "fr": "Suivez NAS, serveurs et PC avec Glances : processeur, mémoire, disques, températures, conteneurs.",
+    "de": "Überwache NAS, Server und PCs mit Glances: CPU, Speicher, Datenträger, Temperaturen, Container.",
+    "es": "Siga sus NAS, servidores y PC con Glances: procesador, memoria, discos, temperaturas, contenedores."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "docker_image": "ghcr.io/guim31/gladys-glances:1.0.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-glances/main/cover.png",
+  "categories": ["network"],
+  "transports": ["local"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Your Glances servers",
+        "fr": "Vos serveurs Glances",
+        "de": "Deine Glances-Server",
+        "es": "Sus servidores Glances"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "On each machine to follow (NAS, server, PC), run Glances in web server mode: \"glances -w\", or the nicolargo/glances Docker image with GLANCES_OPT=\"-w\". Enter its address below, then add the server, and the disks, interfaces, sensors and containers you want, from the Discover tab.",
+        "fr": "Sur chaque machine à suivre (NAS, serveur, PC), lancez Glances en serveur web : « glances -w », ou l'image Docker nicolargo/glances avec GLANCES_OPT=\"-w\". Saisissez son adresse ci-dessous, puis ajoutez le serveur, ses disques, interfaces, capteurs et conteneurs depuis l'onglet Découverte.",
+        "de": "Starte Glances auf jedem zu überwachenden Rechner (NAS, Server, PC) als Webserver: „glances -w“ oder das Docker-Image nicolargo/glances mit GLANCES_OPT=\"-w\". Gib unten seine Adresse ein und füge im Tab „Entdecken“ den Server, seine Datenträger, Schnittstellen, Sensoren und Container hinzu.",
+        "es": "En cada equipo que quiera seguir (NAS, servidor, PC), ejecute Glances como servidor web: «glances -w», o la imagen Docker nicolargo/glances con GLANCES_OPT=\"-w\". Introduzca su dirección abajo y añada el servidor, sus discos, interfaces, sensores y contenedores desde la pestaña Descubrir."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://github.com/guim31/gladys-glances/blob/main/docs/en.md",
+          "label": {
+            "en": "Setup guide",
+            "fr": "Guide d'installation",
+            "de": "Installationsanleitung",
+            "es": "Guía de instalación"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "server_1_url",
+      "type": "string",
+      "label": {
+        "en": "Glances address",
+        "fr": "Adresse de Glances",
+        "de": "Glances-Adresse",
+        "es": "Dirección de Glances"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
-    },
-    {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
-      },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
-    },
-    {
-      "key": "unit",
-      "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
       "required": false,
-      "default": "celsius",
+      "placeholder": {
+        "en": "192.168.1.20",
+        "fr": "192.168.1.20",
+        "de": "192.168.1.20",
+        "es": "192.168.1.20"
+      },
+      "description": {
+        "en": "Address of the machine that runs \"glances -w\" (port 61208 by default): 192.168.1.20, nas.lan or http://nas.lan:61208.",
+        "fr": "Adresse de la machine où tourne « glances -w » (port 61208 par défaut) : 192.168.1.20, nas.lan ou http://nas.lan:61208.",
+        "de": "Adresse des Rechners, auf dem „glances -w“ läuft (standardmäßig Port 61208): 192.168.1.20, nas.lan oder http://nas.lan:61208.",
+        "es": "Dirección del equipo que ejecuta «glances -w» (puerto 61208 por defecto): 192.168.1.20, nas.lan o http://nas.lan:61208."
+      }
+    },
+    {
+      "key": "server_1_username",
+      "type": "string",
+      "label": {
+        "en": "User name (optional)",
+        "fr": "Nom d'utilisateur (facultatif)",
+        "de": "Benutzername (optional)",
+        "es": "Nombre de usuario (opcional)"
+      },
+      "required": false,
+      "placeholder": {
+        "en": "glances",
+        "fr": "glances",
+        "de": "glances",
+        "es": "glances"
+      },
+      "description": {
+        "en": "Only with a password: \"glances\", unless Glances was started with --username.",
+        "fr": "Seulement avec un mot de passe : « glances », sauf si Glances a été lancé avec --username.",
+        "de": "Nur mit Passwort: „glances“, außer Glances wurde mit --username gestartet.",
+        "es": "Solo con contraseña: «glances», salvo que Glances se haya iniciado con --username."
+      }
+    },
+    {
+      "key": "server_1_password",
+      "type": "secret",
+      "label": {
+        "en": "Password (optional)",
+        "fr": "Mot de passe (facultatif)",
+        "de": "Passwort (optional)",
+        "es": "Contraseña (opcional)"
+      },
+      "required": false,
+      "description": {
+        "en": "The password of \"glances -w --password\". Leave empty when Glances asks for none.",
+        "fr": "Le mot de passe de « glances -w --password ». Laissez vide si Glances n'en demande pas.",
+        "de": "Das Passwort von „glances -w --password“. Leer lassen, wenn Glances keines verlangt.",
+        "es": "La contraseña de «glances -w --password». Déjela vacía si Glances no pide ninguna."
+      }
+    },
+    {
+      "key": "server_1_name",
+      "type": "string",
+      "label": {
+        "en": "Name (optional)",
+        "fr": "Nom (facultatif)",
+        "de": "Name (optional)",
+        "es": "Nombre (opcional)"
+      },
+      "required": false,
+      "description": {
+        "en": "Shown in the device names, the widget and the messages. By default, the host name Glances gives.",
+        "fr": "Affiché dans les noms des appareils, le widget et les messages. Par défaut, le nom d'hôte donné par Glances.",
+        "de": "Wird in den Gerätenamen, im Widget und in den Nachrichten angezeigt. Standardmäßig der Hostname, den Glances meldet.",
+        "es": "Se muestra en los nombres de los dispositivos, el widget y los mensajes. Por defecto, el nombre de host que da Glances."
+      }
+    },
+    {
+      "key": "second_server",
+      "type": "section",
+      "label": {
+        "en": "Second Glances server (optional)",
+        "fr": "Deuxième serveur Glances (facultatif)",
+        "de": "Zweiter Glances-Server (optional)",
+        "es": "Segundo servidor Glances (opcional)"
+      },
+      "description": {
+        "en": "Another machine, with its own address and password.",
+        "fr": "Une autre machine, avec sa propre adresse et son mot de passe.",
+        "de": "Ein weiterer Rechner mit eigener Adresse und eigenem Passwort.",
+        "es": "Otro equipo, con su propia dirección y contraseña."
+      }
+    },
+    {
+      "key": "server_2_url",
+      "type": "string",
+      "label": {
+        "en": "Second Glances address",
+        "fr": "Adresse du deuxième Glances",
+        "de": "Adresse des zweiten Glances",
+        "es": "Dirección del segundo Glances"
+      },
+      "required": false,
+      "placeholder": {
+        "en": "192.168.1.20",
+        "fr": "192.168.1.20",
+        "de": "192.168.1.20",
+        "es": "192.168.1.20"
+      }
+    },
+    {
+      "key": "server_2_username",
+      "type": "string",
+      "label": {
+        "en": "Second user name (optional)",
+        "fr": "Deuxième nom d'utilisateur (facultatif)",
+        "de": "Zweiter Benutzername (optional)",
+        "es": "Segundo nombre de usuario (opcional)"
+      },
+      "required": false,
+      "placeholder": {
+        "en": "glances",
+        "fr": "glances",
+        "de": "glances",
+        "es": "glances"
+      }
+    },
+    {
+      "key": "server_2_password",
+      "type": "secret",
+      "label": {
+        "en": "Second password (optional)",
+        "fr": "Deuxième mot de passe (facultatif)",
+        "de": "Zweites Passwort (optional)",
+        "es": "Segunda contraseña (opcional)"
+      },
+      "required": false
+    },
+    {
+      "key": "server_2_name",
+      "type": "string",
+      "label": {
+        "en": "Second name (optional)",
+        "fr": "Deuxième nom (facultatif)",
+        "de": "Zweiter Name (optional)",
+        "es": "Segundo nombre (opcional)"
+      },
+      "required": false
+    },
+    {
+      "key": "third_server",
+      "type": "section",
+      "label": {
+        "en": "Third Glances server (optional)",
+        "fr": "Troisième serveur Glances (facultatif)",
+        "de": "Dritter Glances-Server (optional)",
+        "es": "Tercer servidor Glances (opcional)"
+      },
+      "description": {
+        "en": "Another machine, with its own address and password.",
+        "fr": "Une autre machine, avec sa propre adresse et son mot de passe.",
+        "de": "Ein weiterer Rechner mit eigener Adresse und eigenem Passwort.",
+        "es": "Otro equipo, con su propia dirección y contraseña."
+      }
+    },
+    {
+      "key": "server_3_url",
+      "type": "string",
+      "label": {
+        "en": "Third Glances address",
+        "fr": "Adresse du troisième Glances",
+        "de": "Adresse des dritten Glances",
+        "es": "Dirección del tercer Glances"
+      },
+      "required": false,
+      "placeholder": {
+        "en": "192.168.1.20",
+        "fr": "192.168.1.20",
+        "de": "192.168.1.20",
+        "es": "192.168.1.20"
+      }
+    },
+    {
+      "key": "server_3_username",
+      "type": "string",
+      "label": {
+        "en": "Third user name (optional)",
+        "fr": "Troisième nom d'utilisateur (facultatif)",
+        "de": "Dritter Benutzername (optional)",
+        "es": "Tercer nombre de usuario (opcional)"
+      },
+      "required": false,
+      "placeholder": {
+        "en": "glances",
+        "fr": "glances",
+        "de": "glances",
+        "es": "glances"
+      }
+    },
+    {
+      "key": "server_3_password",
+      "type": "secret",
+      "label": {
+        "en": "Third password (optional)",
+        "fr": "Troisième mot de passe (facultatif)",
+        "de": "Drittes Passwort (optional)",
+        "es": "Tercera contraseña (opcional)"
+      },
+      "required": false
+    },
+    {
+      "key": "server_3_name",
+      "type": "string",
+      "label": {
+        "en": "Third name (optional)",
+        "fr": "Troisième nom (facultatif)",
+        "de": "Dritter Name (optional)",
+        "es": "Tercer nombre (opcional)"
+      },
+      "required": false
+    },
+    {
+      "key": "options",
+      "type": "section",
+      "label": {
+        "en": "Options",
+        "fr": "Options",
+        "de": "Optionen",
+        "es": "Opciones"
+      },
+      "description": {
+        "en": "Only the devices added to Gladys receive values; the scene triggers work for every disk, sensor and container.",
+        "fr": "Seuls les appareils ajoutés à Gladys reçoivent des valeurs ; les déclencheurs de scène fonctionnent pour tous les disques, capteurs et conteneurs.",
+        "de": "Nur die zu Gladys hinzugefügten Geräte erhalten Werte; die Szenen-Auslöser funktionieren für alle Datenträger, Sensoren und Container.",
+        "es": "Solo los dispositivos añadidos a Gladys reciben valores; los disparadores de escena funcionan para todos los discos, sensores y contenedores."
+      }
+    },
+    {
+      "key": "poll_interval",
+      "type": "select",
+      "label": {
+        "en": "Refresh interval",
+        "fr": "Intervalle de rafraîchissement",
+        "de": "Aktualisierungsintervall",
+        "es": "Intervalo de actualización"
+      },
+      "description": {
+        "en": "How often every Glances server is read.",
+        "fr": "Fréquence de lecture de chaque serveur Glances.",
+        "de": "Wie oft jeder Glances-Server gelesen wird.",
+        "es": "Con qué frecuencia se lee cada servidor Glances."
+      },
+      "required": false,
+      "default": "30",
       "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
+        {
+          "value": "15",
+          "label": {
+            "en": "15 seconds",
+            "fr": "15 secondes",
+            "de": "15 Sekunden",
+            "es": "15 segundos"
+          }
+        },
+        {
+          "value": "30",
+          "label": {
+            "en": "30 seconds",
+            "fr": "30 secondes",
+            "de": "30 Sekunden",
+            "es": "30 segundos"
+          }
+        },
+        {
+          "value": "60",
+          "label": {
+            "en": "1 minute",
+            "fr": "1 minute",
+            "de": "1 Minute",
+            "es": "1 minuto"
+          }
+        },
+        {
+          "value": "120",
+          "label": {
+            "en": "2 minutes",
+            "fr": "2 minutes",
+            "de": "2 Minuten",
+            "es": "2 minutos"
+          }
+        },
+        {
+          "value": "300",
+          "label": {
+            "en": "5 minutes",
+            "fr": "5 minutes",
+            "de": "5 Minuten",
+            "es": "5 minutos"
+          }
+        }
       ]
     },
     {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "key": "allow_self_signed",
+      "type": "boolean",
+      "label": {
+        "en": "Accept self-signed certificates",
+        "fr": "Accepter les certificats auto-signés",
+        "de": "Selbstsignierte Zertifikate akzeptieren",
+        "es": "Aceptar certificados autofirmados"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "Only for an https:// address (Glances behind a reverse proxy) whose certificate your browser does not trust either.",
+        "fr": "Seulement pour une adresse en https:// (Glances derrière un proxy inverse) dont votre navigateur ne reconnaît pas non plus le certificat.",
+        "de": "Nur für eine https://-Adresse (Glances hinter einem Reverse-Proxy), deren Zertifikat auch dein Browser nicht anerkennt.",
+        "es": "Solo para una dirección https:// (Glances detrás de un proxy inverso) cuyo certificado tampoco reconoce su navegador."
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
+      "default": false
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "label": {
+        "en": "Language of the names",
+        "fr": "Langue des noms",
+        "de": "Sprache der Namen",
+        "es": "Idioma de los nombres"
+      },
+      "description": {
+        "en": "Language of the feature names (set when a device is added), of the scene results and of the connection test.",
+        "fr": "Langue des noms des fonctionnalités (fixés à l'ajout d'un appareil), des résultats de scène et du test de connexion.",
+        "de": "Sprache der Funktionsnamen (beim Hinzufügen eines Geräts festgelegt), der Szenen-Ergebnisse und des Verbindungstests.",
+        "es": "Idioma de los nombres de las funciones (fijados al añadir un dispositivo), de los resultados de escena y de la prueba de conexión."
+      },
+      "required": false,
+      "default": "fr",
+      "options": [
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "English",
+            "de": "English",
+            "es": "English"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "Français",
+            "fr": "Français",
+            "de": "Français",
+            "es": "Français"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "Deutsch",
+            "fr": "Deutsch",
+            "de": "Deutsch",
+            "es": "Deutsch"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Español",
+            "fr": "Español",
+            "de": "Español",
+            "es": "Español"
+          }
+        }
+      ]
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
-    },
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "description": {
+        "en": "Reads every configured Glances server now and says what it found.",
+        "fr": "Lit maintenant chaque serveur Glances configuré et dit ce qu’il a trouvé.",
+        "de": "Liest jetzt jeden konfigurierten Glances-Server und sagt, was gefunden wurde.",
+        "es": "Lee ahora cada servidor Glances configurado e indica lo que ha encontrado."
+      },
+      "timeout_seconds": 60
+    }
+  ],
+  "widgets": [
     {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
+      "key": "server",
+      "label": {
+        "en": "Glances server",
+        "fr": "Serveur Glances",
+        "de": "Glances-Server",
+        "es": "Servidor Glances"
+      },
+      "icon": "server",
+      "description": {
+        "en": "CPU, memory and disk gauges, temperature, containers, load and uptime of a server.",
+        "fr": "Jauges processeur, mémoire et disque, température, conteneurs, charge et durée d’un serveur.",
+        "de": "Anzeigen für Prozessor, Speicher und Datenträger, Temperatur, Container, Last und Laufzeit.",
+        "es": "Indicadores de procesador, memoria y disco, temperatura, contenedores, carga y tiempo en marcha."
+      },
+      "settings": [
         {
-          "key": "device",
+          "key": "server",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
+          "required": true,
+          "label": {
+            "en": "Server",
+            "fr": "Serveur",
+            "de": "Server",
+            "es": "Servidor"
+          },
+          "description": {
+            "en": "Any device of the server: the server itself, one of its disks…",
+            "fr": "N'importe quel appareil du serveur : le serveur lui-même, un de ses disques…",
+            "de": "Ein beliebiges Gerät des Servers: der Server selbst, einer seiner Datenträger …",
+            "es": "Cualquier dispositivo del servidor: el propio servidor, uno de sus discos…"
+          }
+        },
+        {
+          "key": "disk",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "Disk (optional)",
+            "fr": "Disque (facultatif)",
+            "de": "Datenträger (optional)",
+            "es": "Disco (opcional)"
+          },
+          "description": {
+            "en": "A disk device of the same server. By default, the root disk.",
+            "fr": "Un appareil disque du même serveur. Par défaut, le disque racine.",
+            "de": "Ein Datenträger-Gerät desselben Servers. Standardmäßig der Root-Datenträger.",
+            "es": "Un dispositivo de disco del mismo servidor. Por defecto, el disco raíz."
+          }
         }
-      ]
+      ],
+      "action_timeout_seconds": 30
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "disk_almost_full",
+      "label": {
+        "en": "Disk almost full",
+        "fr": "Disque presque plein",
+        "de": "Datenträger fast voll",
+        "es": "Disco casi lleno"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "A disk of a Glances server reaches the chosen use. Announced again once it went 2 points below.",
+        "fr": "Un disque d'un serveur Glances atteint le taux choisi. Annoncé de nouveau une fois redescendu de 2 points.",
+        "de": "Ein Datenträger eines Glances-Servers erreicht die gewählte Belegung. Erneut gemeldet, wenn er 2 Punkte darunter war.",
+        "es": "Un disco de un servidor Glances alcanza el uso elegido. Se avisa de nuevo cuando ha bajado 2 puntos."
       },
       "fields": [
         {
-          "key": "device",
+          "key": "server",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
+          "label": {
+            "en": "Server",
+            "fr": "Serveur",
+            "de": "Server",
+            "es": "Servidor"
+          },
+          "description": {
+            "en": "The device of the server itself. Empty: every server.",
+            "fr": "L'appareil du serveur lui-même. Vide : tous les serveurs.",
+            "de": "Das Gerät des Servers selbst. Leer: alle Server.",
+            "es": "El dispositivo del propio servidor. Vacío: todos los servidores."
+          }
         },
         {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
+          "key": "disk",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Disk",
+            "fr": "Disque",
+            "de": "Datenträger",
+            "es": "Disco"
+          },
+          "description": {
+            "en": "A disk device. Empty: every disk, added to Gladys or not.",
+            "fr": "Un appareil disque. Vide : tous les disques, ajoutés à Gladys ou non.",
+            "de": "Ein Datenträger-Gerät. Leer: alle Datenträger, ob zu Gladys hinzugefügt oder nicht.",
+            "es": "Un dispositivo de disco. Vacío: todos los discos, añadidos a Gladys o no."
+          }
+        },
+        {
+          "key": "threshold",
+          "type": "select",
+          "label": {
+            "en": "Space used",
+            "fr": "Espace utilisé",
+            "de": "Belegter Speicher",
+            "es": "Espacio usado"
+          },
+          "required": true,
+          "default": "90",
           "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
+            {
+              "value": "80",
+              "label": {
+                "en": "80 %",
+                "fr": "80 %",
+                "de": "80 %",
+                "es": "80 %"
+              }
+            },
+            {
+              "value": "85",
+              "label": {
+                "en": "85 %",
+                "fr": "85 %",
+                "de": "85 %",
+                "es": "85 %"
+              }
+            },
+            {
+              "value": "90",
+              "label": {
+                "en": "90 %",
+                "fr": "90 %",
+                "de": "90 %",
+                "es": "90 %"
+              }
+            },
+            {
+              "value": "95",
+              "label": {
+                "en": "95 %",
+                "fr": "95 %",
+                "de": "95 %",
+                "es": "95 %"
+              }
+            },
+            {
+              "value": "98",
+              "label": {
+                "en": "98 %",
+                "fr": "98 %",
+                "de": "98 %",
+                "es": "98 %"
+              }
+            }
           ]
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "server_name",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "label": {
+            "en": "Server",
+            "fr": "Serveur",
+            "de": "Server",
+            "es": "Servidor"
+          }
+        },
+        {
+          "key": "mount_point",
+          "type": "string",
+          "label": {
+            "en": "Mount point",
+            "fr": "Point de montage",
+            "de": "Einhängepunkt",
+            "es": "Punto de montaje"
+          }
+        },
+        {
+          "key": "used_percent",
+          "type": "number",
+          "label": {
+            "en": "Space used (%)",
+            "fr": "Espace utilisé (%)",
+            "de": "Belegter Speicher (%)",
+            "es": "Espacio usado (%)"
+          }
+        },
+        {
+          "key": "free_gb",
+          "type": "number",
+          "label": {
+            "en": "Free space (GB)",
+            "fr": "Espace libre (Go)",
+            "de": "Freier Speicher (GB)",
+            "es": "Espacio libre (GB)"
+          }
+        },
+        {
+          "key": "threshold",
+          "type": "number",
+          "label": {
+            "en": "Threshold (%)",
+            "fr": "Seuil (%)",
+            "de": "Schwelle (%)",
+            "es": "Umbral (%)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "temperature_high",
+      "label": {
+        "en": "High temperature",
+        "fr": "Température élevée",
+        "de": "Hohe Temperatur",
+        "es": "Temperatura alta"
+      },
+      "description": {
+        "en": "A temperature sensor of a Glances server stays at or above the chosen temperature for two reads in a row.",
+        "fr": "Un capteur de température d'un serveur Glances reste au-dessus de la température choisie deux lectures de suite.",
+        "de": "Ein Temperatursensor eines Glances-Servers bleibt zwei Lesungen hintereinander auf oder über der gewählten Temperatur.",
+        "es": "Un sensor de temperatura de un servidor Glances se mantiene en la temperatura elegida o por encima durante dos lecturas seguidas."
+      },
+      "fields": [
+        {
+          "key": "server",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Server",
+            "fr": "Serveur",
+            "de": "Server",
+            "es": "Servidor"
+          },
+          "description": {
+            "en": "The device of the server itself. Empty: every server.",
+            "fr": "L'appareil du serveur lui-même. Vide : tous les serveurs.",
+            "de": "Das Gerät des Servers selbst. Leer: alle Server.",
+            "es": "El dispositivo del propio servidor. Vacío: todos los servidores."
+          }
+        },
+        {
+          "key": "sensor",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Sensor",
+            "fr": "Capteur",
+            "de": "Sensor",
+            "es": "Sensor"
+          },
+          "description": {
+            "en": "A sensor device. Empty: every temperature sensor.",
+            "fr": "Un appareil capteur. Vide : tous les capteurs de température.",
+            "de": "Ein Sensor-Gerät. Leer: alle Temperatursensoren.",
+            "es": "Un dispositivo sensor. Vacío: todos los sensores de temperatura."
+          }
+        },
+        {
+          "key": "threshold",
+          "type": "select",
+          "label": {
+            "en": "Temperature",
+            "fr": "Température",
+            "de": "Temperatur",
+            "es": "Temperatura"
+          },
+          "required": true,
+          "default": "80",
+          "options": [
+            {
+              "value": "50",
+              "label": {
+                "en": "50 °C",
+                "fr": "50 °C",
+                "de": "50 °C",
+                "es": "50 °C"
+              }
+            },
+            {
+              "value": "55",
+              "label": {
+                "en": "55 °C",
+                "fr": "55 °C",
+                "de": "55 °C",
+                "es": "55 °C"
+              }
+            },
+            {
+              "value": "60",
+              "label": {
+                "en": "60 °C",
+                "fr": "60 °C",
+                "de": "60 °C",
+                "es": "60 °C"
+              }
+            },
+            {
+              "value": "65",
+              "label": {
+                "en": "65 °C",
+                "fr": "65 °C",
+                "de": "65 °C",
+                "es": "65 °C"
+              }
+            },
+            {
+              "value": "70",
+              "label": {
+                "en": "70 °C",
+                "fr": "70 °C",
+                "de": "70 °C",
+                "es": "70 °C"
+              }
+            },
+            {
+              "value": "75",
+              "label": {
+                "en": "75 °C",
+                "fr": "75 °C",
+                "de": "75 °C",
+                "es": "75 °C"
+              }
+            },
+            {
+              "value": "80",
+              "label": {
+                "en": "80 °C",
+                "fr": "80 °C",
+                "de": "80 °C",
+                "es": "80 °C"
+              }
+            },
+            {
+              "value": "85",
+              "label": {
+                "en": "85 °C",
+                "fr": "85 °C",
+                "de": "85 °C",
+                "es": "85 °C"
+              }
+            },
+            {
+              "value": "90",
+              "label": {
+                "en": "90 °C",
+                "fr": "90 °C",
+                "de": "90 °C",
+                "es": "90 °C"
+              }
+            },
+            {
+              "value": "95",
+              "label": {
+                "en": "95 °C",
+                "fr": "95 °C",
+                "de": "95 °C",
+                "es": "95 °C"
+              }
+            },
+            {
+              "value": "100",
+              "label": {
+                "en": "100 °C",
+                "fr": "100 °C",
+                "de": "100 °C",
+                "es": "100 °C"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "server_name",
+          "type": "string",
+          "label": {
+            "en": "Server",
+            "fr": "Serveur",
+            "de": "Server",
+            "es": "Servidor"
+          }
+        },
+        {
+          "key": "sensor_name",
+          "type": "string",
+          "label": {
+            "en": "Sensor",
+            "fr": "Capteur",
+            "de": "Sensor",
+            "es": "Sensor"
+          }
+        },
+        {
+          "key": "temperature",
+          "type": "number",
+          "label": {
+            "en": "Temperature (°C)",
+            "fr": "Température (°C)",
+            "de": "Temperatur (°C)",
+            "es": "Temperatura (°C)"
+          }
+        },
+        {
+          "key": "threshold",
+          "type": "number",
+          "label": {
+            "en": "Threshold (°C)",
+            "fr": "Seuil (°C)",
+            "de": "Schwelle (°C)",
+            "es": "Umbral (°C)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "container_stopped",
+      "label": {
+        "en": "Container stopped",
+        "fr": "Conteneur arrêté",
+        "de": "Container gestoppt",
+        "es": "Contenedor detenido"
+      },
+      "description": {
+        "en": "A Docker or Podman container that was running stops, or keeps restarting (two reads in a row).",
+        "fr": "Un conteneur Docker ou Podman qui tournait s'arrête, ou redémarre en boucle (deux lectures de suite).",
+        "de": "Ein laufender Docker- oder Podman-Container stoppt oder startet ständig neu (zwei Lesungen hintereinander).",
+        "es": "Un contenedor Docker o Podman que estaba en marcha se detiene o se reinicia sin parar (dos lecturas seguidas)."
+      },
+      "fields": [
+        {
+          "key": "server",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Server",
+            "fr": "Serveur",
+            "de": "Server",
+            "es": "Servidor"
+          },
+          "description": {
+            "en": "The device of the server itself. Empty: every server.",
+            "fr": "L'appareil du serveur lui-même. Vide : tous les serveurs.",
+            "de": "Das Gerät des Servers selbst. Leer: alle Server.",
+            "es": "El dispositivo del propio servidor. Vacío: todos los servidores."
+          }
+        },
+        {
+          "key": "container",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Container",
+            "fr": "Conteneur",
+            "de": "Container",
+            "es": "Contenedor"
+          },
+          "description": {
+            "en": "A container device. Empty: every container.",
+            "fr": "Un appareil conteneur. Vide : tous les conteneurs.",
+            "de": "Ein Container-Gerät. Leer: alle Container.",
+            "es": "Un dispositivo contenedor. Vacío: todos los contenedores."
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "server_name",
+          "type": "string",
+          "label": {
+            "en": "Server",
+            "fr": "Serveur",
+            "de": "Server",
+            "es": "Servidor"
+          }
+        },
+        {
+          "key": "container_name",
+          "type": "string",
+          "label": {
+            "en": "Container",
+            "fr": "Conteneur",
+            "de": "Container",
+            "es": "Contenedor"
+          }
+        },
+        {
+          "key": "status",
+          "type": "string",
+          "label": {
+            "en": "State",
+            "fr": "État",
+            "de": "Zustand",
+            "es": "Estado"
+          }
+        }
+      ]
+    },
+    {
+      "key": "server_unreachable",
+      "label": {
+        "en": "Server unreachable",
+        "fr": "Serveur injoignable",
+        "de": "Server nicht erreichbar",
+        "es": "Servidor inaccesible"
+      },
+      "description": {
+        "en": "A Glances server no longer answers (two reads in a row, 15 seconds apart).",
+        "fr": "Un serveur Glances ne répond plus (deux lectures de suite, à 15 secondes d’intervalle).",
+        "de": "Ein Glances-Server antwortet nicht mehr (zwei Lesungen hintereinander, im Abstand von 15 Sekunden).",
+        "es": "Un servidor Glances ya no responde (dos lecturas seguidas, con 15 segundos de intervalo)."
+      },
+      "fields": [
+        {
+          "key": "server",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Server",
+            "fr": "Serveur",
+            "de": "Server",
+            "es": "Servidor"
+          },
+          "description": {
+            "en": "The device of the server itself. Empty: every server.",
+            "fr": "L'appareil du serveur lui-même. Vide : tous les serveurs.",
+            "de": "Das Gerät des Servers selbst. Leer: alle Server.",
+            "es": "El dispositivo del propio servidor. Vacío: todos los servidores."
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "server_name",
+          "type": "string",
+          "label": {
+            "en": "Server",
+            "fr": "Serveur",
+            "de": "Server",
+            "es": "Servidor"
+          }
+        },
+        {
+          "key": "error",
+          "type": "string",
+          "label": {
+            "en": "Reason",
+            "fr": "Raison",
+            "de": "Grund",
+            "es": "Motivo"
+          }
         }
       ]
     }
   ],
   "scene_actions": [
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+      "key": "get_server_status",
+      "label": {
+        "en": "State of a server",
+        "fr": "État d'un serveur",
+        "de": "Zustand eines Servers",
+        "es": "Estado de un servidor"
       },
-      "timeout_seconds": 15,
+      "description": {
+        "en": "Reads a Glances server for the next actions: CPU, memory, disk, temperature, containers, and a ready-made summary.",
+        "fr": "Lit un serveur Glances pour les actions suivantes : processeur, mémoire, disque, température, conteneurs, et un résumé prêt à envoyer.",
+        "de": "Liest einen Glances-Server für die nächsten Aktionen: Prozessor, Speicher, Datenträger, Temperatur, Container und eine fertige Zusammenfassung.",
+        "es": "Lee un servidor Glances para las acciones siguientes: procesador, memoria, disco, temperatura, contenedores y un resumen listo para enviar."
+      },
+      "timeout_seconds": 30,
       "fields": [
         {
-          "key": "device",
+          "key": "server",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
+          "required": true,
+          "label": {
+            "en": "Server",
+            "fr": "Serveur",
+            "de": "Server",
+            "es": "Servidor"
+          },
+          "description": {
+            "en": "Any device of the server: the server itself, one of its disks…",
+            "fr": "N'importe quel appareil du serveur : le serveur lui-même, un de ses disques…",
+            "de": "Ein beliebiges Gerät des Servers: der Server selbst, einer seiner Datenträger …",
+            "es": "Cualquier dispositivo del servidor: el propio servidor, uno de sus discos…"
+          }
         }
       ],
       "outputs": [
         {
-          "key": "signalled",
+          "key": "name",
+          "type": "string",
+          "label": {
+            "en": "Server name",
+            "fr": "Nom du serveur",
+            "de": "Servername",
+            "es": "Nombre del servidor"
+          }
+        },
+        {
+          "key": "online",
           "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "label": {
+            "en": "Answers",
+            "fr": "Répond",
+            "de": "Antwortet",
+            "es": "Responde"
+          }
+        },
+        {
+          "key": "summary",
+          "type": "string",
+          "label": {
+            "en": "Summary",
+            "fr": "Résumé",
+            "de": "Zusammenfassung",
+            "es": "Resumen"
+          }
+        },
+        {
+          "key": "cpu",
+          "type": "number",
+          "label": {
+            "en": "CPU (%)",
+            "fr": "Processeur (%)",
+            "de": "Prozessor (%)",
+            "es": "Procesador (%)"
+          }
+        },
+        {
+          "key": "memory",
+          "type": "number",
+          "label": {
+            "en": "Memory (%)",
+            "fr": "Mémoire (%)",
+            "de": "Arbeitsspeicher (%)",
+            "es": "Memoria (%)"
+          }
+        },
+        {
+          "key": "swap",
+          "type": "number",
+          "label": {
+            "en": "Swap (%)",
+            "fr": "Swap (%)",
+            "de": "Auslagerung (%)",
+            "es": "Swap (%)"
+          }
+        },
+        {
+          "key": "load_1",
+          "type": "number",
+          "label": {
+            "en": "Load (1 min)",
+            "fr": "Charge (1 min)",
+            "de": "Last (1 Min.)",
+            "es": "Carga (1 min)"
+          }
+        },
+        {
+          "key": "load_5",
+          "type": "number",
+          "label": {
+            "en": "Load (5 min)",
+            "fr": "Charge (5 min)",
+            "de": "Last (5 Min.)",
+            "es": "Carga (5 min)"
+          }
+        },
+        {
+          "key": "load_15",
+          "type": "number",
+          "label": {
+            "en": "Load (15 min)",
+            "fr": "Charge (15 min)",
+            "de": "Last (15 Min.)",
+            "es": "Carga (15 min)"
+          }
+        },
+        {
+          "key": "uptime_days",
+          "type": "number",
+          "label": {
+            "en": "Uptime (days)",
+            "fr": "Durée de fonctionnement (jours)",
+            "de": "Laufzeit (Tage)",
+            "es": "Tiempo en marcha (días)"
+          }
+        },
+        {
+          "key": "disk_percent",
+          "type": "number",
+          "label": {
+            "en": "Main disk used (%)",
+            "fr": "Disque principal utilisé (%)",
+            "de": "Hauptdatenträger belegt (%)",
+            "es": "Disco principal usado (%)"
+          }
+        },
+        {
+          "key": "disk_free_gb",
+          "type": "number",
+          "label": {
+            "en": "Main disk free (GB)",
+            "fr": "Disque principal libre (Go)",
+            "de": "Hauptdatenträger frei (GB)",
+            "es": "Disco principal libre (GB)"
+          }
+        },
+        {
+          "key": "temperature",
+          "type": "number",
+          "label": {
+            "en": "Highest temperature (°C)",
+            "fr": "Température la plus haute (°C)",
+            "de": "Höchste Temperatur (°C)",
+            "es": "Temperatura más alta (°C)"
+          }
+        },
+        {
+          "key": "containers_running",
+          "type": "number",
+          "label": {
+            "en": "Running containers",
+            "fr": "Conteneurs en marche",
+            "de": "Laufende Container",
+            "es": "Contenedores en marcha"
+          }
+        },
+        {
+          "key": "containers_stopped",
+          "type": "number",
+          "label": {
+            "en": "Stopped containers",
+            "fr": "Conteneurs arrêtés",
+            "de": "Gestoppte Container",
+            "es": "Contenedores detenidos"
+          }
         }
       ]
-    }
-  ],
-  "widgets": [
-    {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
-      },
-      "icon": "activity",
-      "action_timeout_seconds": 15
     }
   ]
 }

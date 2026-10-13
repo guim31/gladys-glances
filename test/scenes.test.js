@@ -1,93 +1,123 @@
+// -----------------------------------------------------------------------------
+// "State of a server": every figure as an output, the summary for a message,
+// an unreachable server answered rather than failed.
+// -----------------------------------------------------------------------------
+
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { createFakeGladys } from '@gladysassistant/integration-sdk/testing';
-import { DEVICE_BLUEPRINTS } from '../src/devices/index.js';
-import { MOTION_DETECTED_TRIGGER, motionSensor } from '../src/devices/motionSensor.js';
-import { SCENE_ACTIONS } from '../src/scenes.js';
-import { normalizeConfig } from '../src/config.js';
+import { DEVICE_TYPES } from '../src/devices.js';
+import { summarize } from '../src/scenes.js';
+import { FakeGlances, URL_1, createClock, createWorld, deviceId } from './helpers/world.js';
 
-const manifest = JSON.parse(
-  await readFile(new URL('../gladys-assistant-integration.json', import.meta.url), 'utf8'),
-);
-const config = normalizeConfig();
+const { SERVER, DISK, CONTAINER } = DEVICE_TYPES;
 
-const declarationOf = (list, key) => manifest[list].find((entry) => entry.key === key);
-const keysOf = (list) => (list ?? []).map((entry) => entry.key);
-const deviceIdOf = (gladys, key) =>
-  DEVICE_BLUEPRINTS.find((bp) => bp.key === key).deviceExternalId(gladys);
+async function world(options = {}) {
+  const glances = options.glances ?? new FakeGlances();
+  const created = await createWorld({ servers: { [URL_1]: glances }, ...options });
+  return { ...created, glances };
+}
 
-// Let the async interval callback run to completion.
-const flush = () => new Promise((resolve) => setImmediate(resolve));
-
-test('the motion sensor fires one motion_detected event per detection, none on the clear', async (t) => {
-  t.mock.timers.enable({ apis: ['setInterval', 'setTimeout'] });
-  const gladys = createFakeGladys();
-  const stopPush = motionSensor.startPush(gladys, config);
-  try {
-    t.mock.timers.tick(60_000);
-    await flush();
-    assert.equal(gladys.fake.sceneEvents.length, 1, 'one detection, one event');
-    assert.equal(gladys.fake.sceneEvents[0].key, MOTION_DETECTED_TRIGGER);
-    assert.equal(gladys.fake.states.at(-1).state, 1, 'the state is still published');
-
-    t.mock.timers.tick(10_000);
-    await flush();
-    assert.equal(gladys.fake.states.at(-1).state, 0, 'the detection is cleared');
-    assert.equal(gladys.fake.sceneEvents.length, 1, 'the clear fires no event');
-  } finally {
-    stopPush();
-  }
-});
-
-test('motion_detected data only carries keys the trigger declares', async (t) => {
-  t.mock.timers.enable({ apis: ['setInterval', 'setTimeout'] });
-  const gladys = createFakeGladys();
-  const stopPush = motionSensor.startPush(gladys, config);
-  try {
-    t.mock.timers.tick(60_000);
-    await flush();
-  } finally {
-    stopPush();
-  }
-  const [{ data }] = gladys.fake.sceneEvents;
-  const trigger = declarationOf('scene_triggers', MOTION_DETECTED_TRIGGER);
-  // The core keeps the `fields` keys (filters) and the `variables` keys
-  // (exposed to the scene): any other key would be silently dropped.
-  const declared = [...keysOf(trigger.fields), ...keysOf(trigger.variables)];
-  for (const [key, value] of Object.entries(data)) {
-    assert.ok(declared.includes(key), `data.${key} is not declared, the core would drop it`);
-    assert.ok(value === null || typeof value !== 'object', `data.${key} must be a primitive`);
-  }
-  // A `"source": "devices"` filter stores a device external_id.
-  assert.equal(data.device, deviceIdOf(gladys, 'motion-sensor'));
-  const targets = trigger.fields.find((field) => field.key === 'target').options;
-  assert.ok(
-    targets.some((option) => option.value === data.target),
-    `data.target "${data.target}" must be one of the filter options`,
+test('every figure of the server, from the server device', async (t) => {
+  const w = await world();
+  t.after(() => w.app.stop());
+  const ack = await w.fake.sceneAction('get_server_status', { server: deviceId(w.gladys, SERVER) });
+  assert.equal(ack.success, true, ack.error);
+  const { outputs } = ack.data;
+  assert.equal(outputs.name, 'NAS');
+  assert.equal(outputs.online, true);
+  assert.equal(outputs.cpu, 31.7);
+  assert.equal(outputs.swap, 100);
+  assert.equal(outputs.load_1, 2.05);
+  assert.equal(outputs.uptime_days, 4.2);
+  assert.equal(outputs.disk_percent, 80.8);
+  assert.equal(outputs.disk_free_gb, 85.2);
+  assert.equal(outputs.temperature, 86);
+  assert.equal(outputs.containers_running, 3);
+  assert.equal(outputs.containers_stopped, 0);
+  assert.equal(
+    outputs.summary,
+    'NAS: CPU 32%, memory 73%, disk /srv/media 81% (85 GB free), 86 °C, 3 container(s) running',
   );
 });
 
-test('identify_device signals the chosen device and returns the declared outputs', async () => {
-  const gladys = createFakeGladys();
-  const outputs = await SCENE_ACTIONS.identify_device(gladys, {
-    fields: { device: deviceIdOf(gladys, 'light') },
-    config,
-  });
-  assert.deepEqual(outputs, { signalled: true });
-  const declared = keysOf(declarationOf('scene_actions', 'identify_device').outputs);
-  for (const key of Object.keys(outputs)) {
-    assert.ok(declared.includes(key), `output "${key}" is not declared, the core would drop it`);
+test('any device of the server will do, a disk or a container', async (t) => {
+  const w = await world();
+  t.after(() => w.app.stop());
+  for (const id of [
+    deviceId(w.gladys, DISK, '/mnt/data'),
+    deviceId(w.gladys, CONTAINER, 'mariadb'),
+  ]) {
+    const ack = await w.fake.sceneAction('get_server_status', { server: id });
+    assert.equal(ack.data.outputs.name, 'NAS');
   }
 });
 
-test('identify_device reports a device that cannot signal itself through its output', async () => {
-  // Not a failure: a scene action is never a condition, the scene author
-  // gates the following actions on the output instead.
-  const gladys = createFakeGladys();
-  const outputs = await SCENE_ACTIONS.identify_device(gladys, {
-    fields: { device: deviceIdOf(gladys, 'weather-station') },
-    config,
+test('the summary in French, with the stopped containers', async (t) => {
+  const glances = new FakeGlances();
+  const w = await world({ glances, config: { server_1_url: '192.0.2.10', language: 'fr' } });
+  t.after(() => w.app.stop());
+  glances.setContainer('jellyfin', null);
+  await w.hub.pollAll();
+  await w.hub.pollAll();
+  const ack = await w.fake.sceneAction('get_server_status', { server: deviceId(w.gladys, SERVER) });
+  assert.equal(
+    ack.data.outputs.summary,
+    'nas : processeur 32 %, mémoire 73 %, disque /srv/media 81 % (85 Go libres), 86 °C, 2 conteneur(s) en marche, arrêtés : jellyfin',
+  );
+  assert.equal(ack.data.outputs.containers_stopped, 1);
+});
+
+test('an unreachable server is an answer: online false, the reason in the summary', async (t) => {
+  const glances = new FakeGlances();
+  const clock = createClock();
+  const w = await world({ glances, clock, config: { server_1_url: '192.0.2.10', language: 'de' } });
+  t.after(() => w.app.stop());
+  glances.failure = 'down';
+  clock.advance(15_000);
+  const ack = await w.fake.sceneAction('get_server_status', { server: deviceId(w.gladys, SERVER) });
+  assert.equal(ack.success, true);
+  assert.deepEqual(ack.data.outputs, {
+    name: 'nas',
+    online: false,
+    summary: 'nas: antwortet nicht (läuft „glances -w“?)',
   });
-  assert.deepEqual(outputs, { signalled: false });
+});
+
+test('reads Glances again when the last read is older than 15 seconds', async (t) => {
+  const clock = createClock();
+  const glances = new FakeGlances();
+  const w = await world({ glances, clock });
+  t.after(() => w.app.stop());
+  const server = deviceId(w.gladys, SERVER);
+  const count = glances.requests.length;
+  await w.fake.sceneAction('get_server_status', { server });
+  assert.equal(glances.requests.length, count, 'fresh enough');
+  clock.advance(15_000);
+  glances.plugins.cpu.total = 77;
+  const ack = await w.fake.sceneAction('get_server_status', { server });
+  assert.equal(ack.data.outputs.cpu, 77);
+});
+
+test('a device of another integration, or no server at all, fails clearly', async (t) => {
+  const w = await world();
+  t.after(() => w.app.stop());
+  const ack = await w.fake.sceneAction('get_server_status', { server: 'ext:other:thing:1' });
+  assert.equal(ack.success, false);
+  assert.equal(ack.error, 'This device does not belong to a configured Glances server.');
+  const empty = await createWorld({ config: { language: 'es' } });
+  t.after(() => empty.app.stop());
+  const none = await empty.fake.sceneAction('get_server_status', { server: 'x' });
+  assert.equal(none.error, 'No hay ningún servidor Glances configurado.');
+});
+
+test('the summary leaves out what Glances does not measure', () => {
+  const view = {
+    name: 'PC',
+    online: true,
+    error: null,
+    disk: null,
+    stopped: [],
+    snapshot: { cpu: 5, memory: null, sensors: [], containers: null },
+  };
+  assert.equal(summarize(view, 'es'), 'PC: procesador 5 %');
 });

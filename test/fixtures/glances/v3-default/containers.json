@@ -1,0 +1,129 @@
+{
+  "version": {},
+  "version_podman": {},
+  "containers": [
+    {
+      "key": "name",
+      "name": "jellyfin",
+      "Id": "c1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90",
+      "Status": "running",
+      "Created": "2026-10-01T10:00:00.000000000Z",
+      "Command": ["run"],
+      "Image": ["example/image:latest"],
+      "io": {
+        "cumulative_ior": 1425408,
+        "cumulative_iow": 2850816,
+        "time_since_update": 3,
+        "ior": 16384,
+        "iow": 32768
+      },
+      "memory": {
+        "usage": 1073741824,
+        "limit": 16537718784,
+        "rss": null,
+        "max_usage": null,
+        "cache": null
+      },
+      "network": {
+        "cumulative_rx": 348000,
+        "cumulative_tx": 174000,
+        "time_since_update": 3,
+        "rx": 4000,
+        "tx": 2000
+      },
+      "cpu": {
+        "total": 12.0
+      },
+      "cpu_percent": 12.0,
+      "memory_usage": 1073741824,
+      "io_r": 16384,
+      "io_w": 32768,
+      "network_rx": 4000,
+      "network_tx": 2000,
+      "Uptime": "3 hours",
+      "engine": "docker"
+    },
+    {
+      "key": "name",
+      "name": "nextcloud",
+      "Id": "a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90",
+      "Status": "running",
+      "Created": "2026-10-01T10:00:00.000000000Z",
+      "Command": ["run"],
+      "Image": ["example/image:latest"],
+      "io": {
+        "cumulative_ior": 1425408,
+        "cumulative_iow": 2850816,
+        "time_since_update": 3,
+        "ior": 16384,
+        "iow": 32768
+      },
+      "memory": {
+        "usage": 524288000,
+        "limit": 16537718784,
+        "rss": null,
+        "max_usage": null,
+        "cache": null
+      },
+      "network": {
+        "cumulative_rx": 348000,
+        "cumulative_tx": 174000,
+        "time_since_update": 3,
+        "rx": 4000,
+        "tx": 2000
+      },
+      "cpu": {
+        "total": 6.0
+      },
+      "cpu_percent": 6.0,
+      "memory_usage": 524288000,
+      "io_r": 16384,
+      "io_w": 32768,
+      "network_rx": 4000,
+      "network_tx": 2000,
+      "Uptime": "3 hours",
+      "engine": "docker"
+    },
+    {
+      "key": "name",
+      "name": "mariadb",
+      "Id": "b1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90",
+      "Status": "running",
+      "Created": "2026-10-01T10:00:00.000000000Z",
+      "Command": ["run"],
+      "Image": ["example/image:latest"],
+      "io": {
+        "cumulative_ior": 1425408,
+        "cumulative_iow": 2850816,
+        "time_since_update": 3,
+        "ior": 16384,
+        "iow": 32768
+      },
+      "memory": {
+        "usage": 314572800,
+        "limit": 16537718784,
+        "rss": null,
+        "max_usage": null,
+        "cache": null
+      },
+      "network": {
+        "cumulative_rx": 348000,
+        "cumulative_tx": 174000,
+        "time_since_update": 3,
+        "rx": 4000,
+        "tx": 2000
+      },
+      "cpu": {
+        "total": 2.0
+      },
+      "cpu_percent": 2.0,
+      "memory_usage": 314572800,
+      "io_r": 16384,
+      "io_w": 32768,
+      "network_rx": 4000,
+      "network_tx": 2000,
+      "Uptime": "3 hours",
+      "engine": "docker"
+    }
+  ]
+}

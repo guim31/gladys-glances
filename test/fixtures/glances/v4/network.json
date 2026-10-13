@@ -1,0 +1,34 @@
+[
+  {
+    "bytes_sent": 0,
+    "bytes_recv": 0,
+    "speed": 0,
+    "key": "interface_name",
+    "interface_name": "lo",
+    "alias": null,
+    "bytes_all": 0,
+    "time_since_update": 4.3498852252960205,
+    "bytes_recv_gauge": 1602,
+    "bytes_recv_rate_per_sec": 0.0,
+    "bytes_sent_gauge": 1602,
+    "bytes_sent_rate_per_sec": 0.0,
+    "bytes_all_gauge": 3204,
+    "bytes_all_rate_per_sec": 0.0
+  },
+  {
+    "bytes_sent": 17278,
+    "bytes_recv": 7081,
+    "speed": 10485760000,
+    "key": "interface_name",
+    "interface_name": "eth0",
+    "alias": null,
+    "bytes_all": 24359,
+    "time_since_update": 4.3498852252960205,
+    "bytes_recv_gauge": 18980,
+    "bytes_recv_rate_per_sec": 1627.0,
+    "bytes_sent_gauge": 38192,
+    "bytes_sent_rate_per_sec": 3972.0,
+    "bytes_all_gauge": 57172,
+    "bytes_all_rate_per_sec": 5599.0
+  }
+]

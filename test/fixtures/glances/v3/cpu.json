@@ -1,0 +1,19 @@
+{
+  "total": 31.2,
+  "user": 23.8,
+  "nice": 0.4,
+  "system": 5.3,
+  "idle": 68.8,
+  "iowait": 0.1,
+  "irq": 0.0,
+  "softirq": 1.7,
+  "steal": 0.0,
+  "guest": 0.0,
+  "guest_nice": 0.0,
+  "time_since_update": 4.324899673461914,
+  "cpucore": 4,
+  "ctx_switches": 47125,
+  "interrupts": 32691,
+  "soft_interrupts": 28791,
+  "syscalls": 0
+}

@@ -217,8 +217,9 @@ Elle relit le serveur quand la dernière lecture date de plus de 15 secondes.
 - **Un disque manque** : Glances masque `/boot` et `/snap`, et ne liste pas
   par défaut les tmpfs ni les partages réseau (voir la section `[fs]` de
   `glances.conf`). Dans Docker, montez la racine de l'hôte (`-v /:/rootfs:ro`).
-- **Le processeur manque juste après le démarrage de Glances** : Glances 4 ne
-  mesure rien à sa toute première lecture ; la valeur arrive à la suivante.
+- **Le processeur ne bouge pas pendant un moment** : Glances 4 répond parfois un
+  processeur à zéro partout (à sa première lecture, ou après une pause) ; cette
+  lecture est ignorée, la valeur arrive à la suivante.
 
 ## Limites
 

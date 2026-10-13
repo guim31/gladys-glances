@@ -6,13 +6,15 @@
 // reverse. The plugins disabled on the server (`--disable-plugin`) are absent
 // from that list and answer 400: they are simply not read.
 //
-// One GET per plugin read, never `/api/<v>/all`: `all` carries the process
+// One GET per plugin read, not `/api/<v>/all`: `all` carries the process
 // list, hundreds of kB on a busy host, read for nothing every 30 seconds.
 //
 // Authentication (`glances -w --password`): HTTP Basic, user name `glances`
 // unless the server was started with `--username`. Glances hashes the
-// password it checks (PBKDF2, 100,000 rounds): a request costs the server a
-// few milliseconds, never a reason to read faster.
+// password it checks (PBKDF2, 100,000 rounds). Glances 4 caches the result;
+// Glances 3 hashes again at every request, half a second of CPU each on a
+// small machine, one request at a time: with a password, a Glances 3 is read
+// with the single `/api/3/all` instead of nine requests.
 //
 // Read only: the Glances API changes nothing on the server.
 // -----------------------------------------------------------------------------
@@ -138,6 +140,10 @@ export class GlancesClient {
       if (TLS_CODES.has(err.code)) {
         throw new GlancesError(ERROR_KINDS.TLS, `Certificate refused (${err.code})`);
       }
+      // Glances answers, but too much: not an outage.
+      if (err.code === 'ERESPONSETOOLARGE') {
+        throw new GlancesError(ERROR_KINDS.HTTP, 'Answer too large');
+      }
       throw new GlancesError(ERROR_KINDS.UNREACHABLE, err.code ? `${err.code}` : err.message);
     }
     const { status } = response;
@@ -147,6 +153,16 @@ export class GlancesClient {
         : new GlancesError(ERROR_KINDS.PASSWORD_MISSING, `A password is needed (HTTP ${status})`, {
             status,
           });
+    }
+    // A reverse proxy in front of a stopped Glances: silence, like no answer at all.
+    if (status === 502 || status === 503 || status === 504) {
+      throw new GlancesError(
+        ERROR_KINDS.UNREACHABLE,
+        `No Glances behind the proxy (HTTP ${status})`,
+        {
+          status,
+        },
+      );
     }
     if (status >= 300 && status < 400) {
       throw new GlancesError(ERROR_KINDS.REDIRECT, `Redirected (HTTP ${status})`, {
@@ -206,18 +222,31 @@ export class GlancesClient {
     }
     const version = this.apiVersion;
     const wanted = PLUGINS.filter((plugin) => this.plugins.has(plugin));
-    const answers = await Promise.all(
-      wanted.map((plugin) => this.get(`/api/${version}/${plugin}`)),
-    );
     const data = {};
     let moved = false;
-    answers.forEach(({ status, data: body }, index) => {
-      if (status === 200) {
-        data[wanted[index]] = body;
-      } else if (status === 404) {
+    if (version === 3 && this.password) {
+      const { status, data: all } = await this.get('/api/3/all');
+      if (status === 404) {
         moved = true;
+      } else if (status !== 200 || !all || typeof all !== 'object' || Array.isArray(all)) {
+        throw new GlancesError(ERROR_KINDS.NOT_GLANCES, `Unexpected /api/3/all (HTTP ${status})`);
+      } else {
+        for (const plugin of wanted.filter((name) => name in all)) {
+          data[plugin] = all[plugin];
+        }
       }
-    });
+    } else {
+      const answers = await Promise.all(
+        wanted.map((plugin) => this.get(`/api/${version}/${plugin}`)),
+      );
+      answers.forEach(({ status, data: body }, index) => {
+        if (status === 200) {
+          data[wanted[index]] = body;
+        } else if (status === 404) {
+          moved = true;
+        }
+      });
+    }
     if (moved) {
       // The API moved under our feet (Glances upgraded in place): detect again, once.
       this.apiVersion = null;

@@ -143,7 +143,7 @@ function parseSensors(sensors) {
     const label = typeof entry?.label === 'string' ? entry.label.trim() : '';
     const type = typeof entry?.type === 'string' ? entry.type : '';
     let value = num(entry?.value);
-    if (!label || !type.startsWith('temperature') || value === null || seen.has(label)) {
+    if (!label || !type.startsWith('temperature') || value === null) {
       continue;
     }
     // Glances started with --fahrenheit converts its readings.
@@ -153,8 +153,14 @@ function parseSensors(sensors) {
     if (value < TEMPERATURE_RANGE[0] || value > TEMPERATURE_RANGE[1]) {
       continue;
     }
-    seen.add(label);
-    parsed.push({ label, type, celsius: value });
+    // Two chips may share a label (two NVMe drives, both "Composite"): the
+    // next ones are numbered, in the order Glances lists them.
+    let unique = label;
+    for (let n = 2; seen.has(unique); n += 1) {
+      unique = `${label} (${n})`;
+    }
+    seen.add(unique);
+    parsed.push({ label: unique, type, celsius: value });
   }
   return parsed;
 }

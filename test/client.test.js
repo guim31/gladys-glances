@@ -99,6 +99,27 @@ test('sends the user name and the password in HTTP Basic', async () => {
   );
 });
 
+test('a Glances 3 with a password is read in one request: it hashes the password at each one', async () => {
+  const glances = new FakeGlances({ version: 3, password: PASSWORD });
+  const glancesClient = client(glances, { password: PASSWORD });
+  await glancesClient.read();
+  const before = glances.requests.length;
+  const read = await glancesClient.read();
+  assert.deepEqual(glances.requests.slice(before), ['/api/3/all']);
+  assert.deepEqual(Object.keys(read.data).sort(), [
+    'containers',
+    'cpu',
+    'fs',
+    'load',
+    'mem',
+    'memswap',
+    'network',
+    'sensors',
+    'uptime',
+  ]);
+  assert.equal(read.data.processlist, undefined);
+});
+
 test('another user name, set with --username', async () => {
   const glances = new FakeGlances({ password: PASSWORD, username: 'admin' });
   await client(glances, { username: 'admin', password: PASSWORD }).read();
@@ -129,6 +150,19 @@ test('every failure has its kind', async () => {
   await rejectsWith(client(glances).read(), ERROR_KINDS.HTTP);
   glances.failure = 404;
   await rejectsWith(client(glances).read(), ERROR_KINDS.NOT_GLANCES);
+  for (const status of [502, 503, 504]) {
+    glances.failure = status; // a reverse proxy in front of a stopped Glances
+    await rejectsWith(client(glances).read(), ERROR_KINDS.UNREACHABLE);
+  }
+});
+
+test('an answer too large is no outage', async () => {
+  const request = async () => {
+    const error = new Error('Response too large');
+    error.code = 'ERESPONSETOOLARGE';
+    throw error;
+  };
+  await rejectsWith(new GlancesClient({ url: URL, request }).read(), ERROR_KINDS.HTTP);
 });
 
 test('a refused certificate is a TLS error, a timeout is silence', async () => {

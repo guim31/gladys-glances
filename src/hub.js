@@ -134,14 +134,22 @@ export class GlancesHub {
     const languageChanged = this.config?.language !== config.language;
     this.config = config;
     const wanted = new Map(config.servers.map((server) => [server.slot, server]));
+    let forgotten = false;
     for (const [slot, record] of this.records) {
       const server = wanted.get(slot);
       if (!server || record.signature !== signature(server, config)) {
         this.dropRecord(record);
         this.records.delete(slot);
+        // Another address may be another machine: what was announced for the
+        // old one must not fire for the new one (recorded again, silently).
+        if (server && server.url !== record.server.url) {
+          forgotten = this.watcher.forgetSlot(slot) || forgotten;
+        }
       }
     }
-    if (this.watcher.forgetSlots(new Set(wanted.keys()))) {
+    // A slot whose address is being corrected keeps its history.
+    const kept = new Set([...wanted.keys(), ...config.invalidSlots]);
+    if (this.watcher.forgetSlots(kept) || forgotten) {
       this.store.save(this.watcher.saved);
     }
     for (const server of config.servers) {
@@ -227,7 +235,7 @@ export class GlancesHub {
 
   /** A server in a list: with its slot when two would read the same. */
   label(record) {
-    return `Glances ${record.server.slot} (${this.serverName(record)})`;
+    return `Server ${record.server.slot} (${this.serverName(record)})`;
   }
 
   serverId(slot) {
@@ -345,9 +353,27 @@ export class GlancesHub {
     if (!found) {
       return;
     }
+    // A device deleted then added again is a new row in Gladys: no badge yet.
+    this.transports.delete(device.external_id);
     await this.publishRecordStates(found.record, { force: true, only: device.external_id });
     await this.publishTransports();
     this.gladys.requestWidgetRefresh(WIDGET_KEY);
+  }
+
+  /** The user deleted a device: forget what was sent for it. */
+  onDeviceDeleted(device) {
+    const id = device?.external_id;
+    if (typeof id !== 'string') {
+      return;
+    }
+    this.transports.delete(id);
+    for (const map of [this.published, this.publishedAt]) {
+      for (const key of [...map.keys()]) {
+        if (key.startsWith(`${id}:`)) {
+          map.delete(key);
+        }
+      }
+    }
   }
 
   // --- Reading the servers ---------------------------------------------------------
@@ -463,7 +489,7 @@ export class GlancesHub {
         });
       }
     }
-    this.watcher.forgetStale(now, this.timings.forgetAfterMs);
+    this.watcher.forgetStale(slot, now, this.timings.forgetAfterMs);
     this.store.save(this.watcher.saved);
 
     await this.publishRecordStates(record);
@@ -499,6 +525,10 @@ export class GlancesHub {
       });
       await this.publishRecordStates(record);
       return true;
+    }
+    if (record.down) {
+      // Offline again after a resync or past the heartbeat (deduplicated).
+      await this.publishRecordStates(record);
     }
     return wasError !== err.kind;
   }
@@ -600,6 +630,10 @@ export class GlancesHub {
         states = [...due.filter((s) => !s.noisy), ...due.filter((s) => s.noisy)].slice(0, allowed);
       }
     }
+    // Reserved before any request: several servers publish at the same time.
+    for (let i = 0; i < states.length; i += 1) {
+      this.sentTimes.push(now);
+    }
     for (let at = 0; at < states.length; at += MAX_STATES_PER_REQUEST) {
       const batch = states.slice(at, at + MAX_STATES_PER_REQUEST);
       try {
@@ -612,10 +646,15 @@ export class GlancesHub {
         for (const { externalId, value } of batch) {
           this.published.set(externalId, value);
           this.publishedAt.set(externalId, now);
-          this.sentTimes.push(now);
         }
       } catch (err) {
         logger.warn(`States refused: ${err.message}`);
+        for (let i = 0; i < batch.length; i += 1) {
+          const index = this.sentTimes.lastIndexOf(now);
+          if (index >= 0) {
+            this.sentTimes.splice(index, 1);
+          }
+        }
       }
     }
   }
@@ -659,6 +698,9 @@ export class GlancesHub {
 
   /** The status under the integration name: connected when every server answers. */
   connectionStatus() {
+    if (!this.config) {
+      return { connected: false, message: CONNECTION_TEXT.noServer };
+    }
     const { servers, invalidSlots } = this.config;
     if (servers.length === 0) {
       return {
@@ -754,7 +796,7 @@ export class GlancesHub {
         }
         return labelled(name, parts.join(', '), language);
       });
-      if (this.config.invalidSlots.length) {
+      if (this.config?.invalidSlots.length) {
         lines.push(pick(CONNECTION_TEXT.invalidUrl, language));
       }
       message[language] = lines.join('\n');

@@ -231,11 +231,26 @@ export class Watcher {
     return changed;
   }
 
-  /** Forget what was not seen for `maxAgeMs` (a container removed, a disk unplugged). */
-  forgetStale(now, maxAgeMs) {
+  /** Forget everything of one server (its address now points at another machine). */
+  forgetSlot(slot) {
+    const kept = new Set(
+      Object.values(this.saved)
+        .flatMap((table) => Object.keys(table))
+        .map(slotOf)
+        .filter((other) => other !== slot),
+    );
+    return this.forgetSlots(kept);
+  }
+
+  /**
+   * Forget what a server no longer shows after `maxAgeMs` (a container
+   * removed, a disk unplugged). Only for the server just read: another one
+   * may simply be switched off.
+   */
+  forgetStale(slot, now, maxAgeMs) {
     for (const table of Object.values(this.saved)) {
       for (const [id, entry] of Object.entries(table)) {
-        if (!(entry?.seenAt >= now - maxAgeMs)) {
+        if (slotOf(id) === slot && !(entry?.seenAt >= now - maxAgeMs)) {
           delete table[id];
           this.misses.delete(id);
         }

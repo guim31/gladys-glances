@@ -12,9 +12,9 @@
 import http from 'node:http';
 import https from 'node:https';
 
-// A plugin answer weighs a few kB; a host with hundreds of containers stays
-// far below this bound.
-export const MAX_BODY_BYTES = 2 * 1024 * 1024;
+// A plugin answer weighs a few kB; `/api/3/all` (Glances 3 with a password)
+// carries the process list, about 1.5 kB per process.
+export const MAX_BODY_BYTES = 8 * 1024 * 1024;
 
 /**
  * @param {string} url absolute URL
@@ -43,7 +43,9 @@ export function httpRequest(url, { headers = {}, insecure = false, timeoutMs = 1
         response.on('data', (chunk) => {
           size += chunk.length;
           if (size > MAX_BODY_BYTES) {
-            request.destroy(new Error('Response too large'));
+            const error = new Error('Response too large');
+            error.code = 'ERESPONSETOOLARGE';
+            request.destroy(error);
             return;
           }
           chunks.push(chunk);

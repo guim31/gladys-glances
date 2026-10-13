@@ -203,8 +203,9 @@ It reads the server again when the last read is older than 15 seconds.
 - **A disk is missing**: Glances hides `/boot` and `/snap`, and does not list
   tmpfs and network shares by default (see the `[fs]` section of
   `glances.conf`). In Docker, mount the host root (`-v /:/rootfs:ro`).
-- **The CPU is missing right after Glances started**: Glances 4 measures
-  nothing at its very first read; the value comes at the next one.
+- **The CPU does not move for a while**: Glances 4 sometimes answers a CPU of
+  zero everywhere (at its first read, or after a pause); that reading is
+  skipped, the value comes at the next one.
 
 ## Limits
 

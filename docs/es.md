@@ -214,8 +214,9 @@ Vuelve a leer el servidor cuando la última lectura tiene más de 15 segundos.
 - **Falta un disco**: Glances oculta `/boot` y `/snap`, y por defecto no lista
   los tmpfs ni las carpetas de red (vea la sección `[fs]` de `glances.conf`).
   En Docker, monte la raíz del host (`-v /:/rootfs:ro`).
-- **Falta el procesador justo después de iniciar Glances**: Glances 4 no mide
-  nada en su primerísima lectura; el valor llega en la siguiente.
+- **El procesador no se mueve durante un rato**: Glances 4 a veces responde un
+  procesador a cero en todo (en su primera lectura o tras una pausa); esa
+  lectura se omite y el valor llega en la siguiente.
 
 ## Límites
 

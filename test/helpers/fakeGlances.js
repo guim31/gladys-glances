@@ -117,6 +117,14 @@ export class FakeGlances {
     if (plugin === 'pluginslist') {
       return { status: 200, headers: {}, body: JSON.stringify(this.pluginslist) };
     }
+    if (plugin === 'all') {
+      const all = Object.fromEntries(
+        Object.entries(this.plugins).filter(([name]) => name !== 'pluginslist'),
+      );
+      // The process list Glances adds, which per-plugin reads avoid.
+      all.processlist = [];
+      return { status: 200, headers: {}, body: JSON.stringify(all) };
+    }
     if (!(plugin in this.plugins)) {
       return { status: 400, headers: {}, body: '{"detail":"Unknown plugin"}' };
     }

@@ -558,3 +558,124 @@ test('no server configured: the connection status says what to do', async (t) =>
   const ack = await world.fake.action('test_connection', {});
   assert.equal(ack.data.message.en, 'Enter the address of a Glances server in the configuration.');
 });
+
+// --- Found by the review ---------------------------------------------------------
+
+test('behind a reverse proxy, a stopped Glances (502) is unreachable, online stays 0', async (t) => {
+  const clock = createClock();
+  const world = await nasWorld({ clock });
+  t.after(() => world.app.stop());
+  await createDevices(world, (device) => device.external_id === deviceId(world.gladys, SERVER));
+  const online = featureId(world.gladys, SERVER, null, FEATURE_KEYS.ONLINE);
+  world.glances.failure = 502;
+  await world.hub.pollAll();
+  await world.hub.pollAll();
+  assert.equal(eventsOf(world, TRIGGERS.UNREACHABLE).length, 1);
+  assert.equal(world.fake.lastState(online), 0);
+  // Gladys restarted while the server is down: offline is sent again.
+  const before = statesOf(world, online).length;
+  await world.gladys.disconnect();
+  await world.gladys.connect();
+  assert.equal(statesOf(world, online).length, before + 1);
+  assert.equal(world.fake.lastState(online), 0);
+});
+
+test('"Update" of a device sends the values of its new features', async (t) => {
+  const clock = createClock();
+  const glances = new FakeGlances();
+  glances.disable('containers');
+  const world = await nasWorld({ glances, clock });
+  t.after(() => world.app.stop());
+  await createDevices(world, (device) => device.external_id === deviceId(world.gladys, SERVER));
+  const running = featureId(world.gladys, SERVER, null, FEATURE_KEYS.CONTAINERS_RUNNING);
+  assert.equal(world.fake.lastState(running), undefined);
+  // Containers appear: the discovered server gains a feature, the user updates it.
+  Object.assign(glances.plugins, { containers: new FakeGlances().plugins.containers });
+  clock.advance(3600_000); // the plugins of the server are listed again every hour
+  await world.hub.pollAll();
+  const updated = world.fake.discoveredDevices[0];
+  assert.ok(updated.features.some((feature) => feature.external_id === running));
+  const sent = statesOf(world, running).length;
+  await world.fake.deviceUpdated(updated);
+  assert.equal(statesOf(world, running).length, sent + 1);
+  assert.equal(world.fake.lastState(running), 3);
+});
+
+test('a device deleted then added again gets its badge and its values again', async (t) => {
+  const world = await nasWorld();
+  t.after(() => world.app.stop());
+  const device = world.fake.discoveredDevices.find((d) => d.name === 'NAS /mnt/data');
+  await world.fake.deviceCreated(device);
+  const badges = world.fake.transports.length;
+  await world.fake.deviceDeleted(device);
+  await world.fake.deviceCreated(device);
+  assert.equal(world.fake.transports.length, badges + 1);
+});
+
+test('the state budget holds when several servers publish at once', async (t) => {
+  const clock = createClock();
+  const world = await createWorld({
+    clock,
+    servers: { [URL_1]: new FakeGlances(), [URL_2]: new FakeGlances({ version: 3 }) },
+    config: { server_1_url: '192.0.2.10', server_2_url: URL_2, language: 'en' },
+    timings: { statesPerMinute: 4 },
+  });
+  t.after(() => world.app.stop());
+  await createDevices(world, (device) => /:disk:/.test(device.external_id));
+  const before = world.fake.states.length;
+  for (const glances of Object.values(world.network.servers)) {
+    glances.plugins.fs.forEach((disk) => {
+      disk.percent = 42;
+    });
+  }
+  clock.advance(61_000);
+  await world.hub.pollAll();
+  assert.equal(world.fake.states.length - before, 4);
+});
+
+test('a new address in a slot forgets what the old machine announced', async (t) => {
+  const glances = new FakeGlances();
+  const world = await nasWorld({ glances });
+  t.after(() => world.app.stop());
+  glances.setDisk('/mnt/data', 91);
+  await world.hub.pollAll();
+  assert.equal(eventsOf(world, TRIGGERS.DISK).length, 3);
+  // Another machine at another address, same disks, nothing running.
+  const other = new FakeGlances();
+  other.setDisk('/mnt/data', 86);
+  other.plugins.containers = [];
+  world.network.servers['http://192.0.2.99:61208'] = other;
+  await world.fake.configUpdated({ server_1_url: '192.0.2.99', server_1_name: 'PC' });
+  await world.hub.pollAll();
+  await world.hub.pollAll();
+  assert.equal(eventsOf(world, TRIGGERS.DISK).length, 3, 'first seen: recorded, not announced');
+  assert.equal(eventsOf(world, TRIGGERS.CONTAINER).length, 0, 'the NAS containers did not stop');
+});
+
+test('an address being corrected keeps the history of its slot', async (t) => {
+  const glances = new FakeGlances();
+  const world = await nasWorld({ glances });
+  t.after(() => world.app.stop());
+  glances.setDisk('/mnt/data', 91);
+  await world.hub.pollAll();
+  await world.fake.configUpdated({ server_1_url: 'ftp://typo' });
+  assert.ok(Object.keys(world.hub.watcher.saved.disks).length > 0);
+  await world.fake.configUpdated({ server_1_url: '192.0.2.10', server_1_name: 'NAS' });
+  await world.hub.pollAll();
+  assert.equal(eventsOf(world, TRIGGERS.DISK).length, 3, 'not announced twice');
+});
+
+test('a server switched off for a week keeps its history while another is read', async (t) => {
+  const clock = createClock();
+  const world = await createWorld({
+    clock,
+    servers: { [URL_1]: new FakeGlances(), [URL_2]: new FakeGlances({ version: 3 }) },
+    config: { server_1_url: '192.0.2.10', server_2_url: URL_2, language: 'en' },
+  });
+  t.after(() => world.app.stop());
+  const pc = world.network.servers[URL_2];
+  pc.failure = 'down';
+  clock.advance(8 * 24 * 3600_000);
+  await world.hub.pollAll();
+  assert.ok(world.hub.watcher.hasContainers(2), 'slot 2 not forgotten by a read of slot 1');
+});

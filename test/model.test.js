@@ -82,7 +82,7 @@ test('container and VM plumbing interfaces are hidden', () => {
   assert.deepEqual(names, ['eth0', 'wlan0', 'enp3s0']);
 });
 
-test('temperature sensors only, Fahrenheit converted, glitches and fans dropped', () => {
+test('temperature sensors only, Fahrenheit converted, glitches and fans dropped, twins numbered', () => {
   const sensors = read('v4', 4).sensors;
   assert.equal(sensors.length, 8);
   assert.equal(hottest(read('v4', 4)).label, 'Package id 0');
@@ -95,7 +95,10 @@ test('temperature sensors only, Fahrenheit converted, glitches and fans dropped'
       { label: 'CPU', type: 'temperature_core', unit: 'C', value: 40 },
     ],
   }).sensors;
-  assert.deepEqual(custom, [{ label: 'CPU', type: 'temperature_core', celsius: 50 }]);
+  assert.deepEqual(custom, [
+    { label: 'CPU', type: 'temperature_core', celsius: 50 },
+    { label: 'CPU (2)', type: 'temperature_core', celsius: 40 },
+  ]);
 });
 
 test('containers of Glances 4: health status, stopped ones listed with all=True', () => {

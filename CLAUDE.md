@@ -193,7 +193,8 @@ code de ce dépôt. Compléter ce fichier quand un nouveau piège est découvert
   sous `/api/3` et inversement. Un plugin désactivé (`--disable-plugin`) est **absent de
   `pluginslist` et répond 400**. Une lecture = un GET par plugin (`cpu`, `load`, `mem`, `memswap`,
   `uptime`, `fs`, `network`, `sensors`, `containers`) ; **jamais `/all`**, qui embarque la liste
-  des processus (des centaines de Ko). `system` et `version` (Glances 4 seulement) à la détection,
+  des processus (des centaines de Ko), **sauf Glances 3 avec mot de passe** (voir plus bas : un
+  seul `/api/3/all`). `system` et `version` (Glances 4 seulement) à la détection,
   refaite toutes les heures et sur un 404 (Glances mis à jour sur place).
 - **Authentification** : `glances -w --password`, HTTP Basic, utilisateur `glances` sauf
   `--username`. Mauvais mot de passe et mauvais utilisateur : 401 identiques. Pour un Glances en
@@ -202,9 +203,9 @@ code de ce dépôt. Compléter ce fichier quand un nouveau piège est découvert
 - **Différences v3/v4** (fixtures réelles) : réseau, v4 `bytes_recv_rate_per_sec`, v3 `rx` /
   `time_since_update`, et **v4 n'a plus `is_up`** ; conteneurs, v4 une liste avec `status`
   (**le statut de santé remplace « running »** : `healthy`, `unhealthy`, `starting`), v3 un objet
-  `{ version, containers }` avec `Status` ; Glances ≤ 3.3 nomme le plugin `docker`. La **première
-  lecture d'un Glances 4 fraîchement lancé renvoie des zéros partout** (`cpu.total` et `idle` à 0) :
-  ignorée. Glances 4 ne relit les disques que **toutes les 60 s** (`[fs] refresh=60`).
+  `{ version, containers }` avec `Status` ; Glances ≤ 3.3 nomme le plugin `docker`. Glances 4
+  **renvoie parfois des zéros partout pour `cpu`** (`total` et `idle` à 0 : première lecture, ou
+  après une pause) : ignoré. Glances 4 ne relit les disques que **toutes les 60 s** (`[fs] refresh=60`).
 - **Conteneurs** : par défaut Glances ne liste **que les conteneurs en marche** (`[containers]
 all=False`) : un conteneur arrêté disparaît de la réponse. « Conteneur arrêté » = vu en marche
   puis absent ou arrêté **deux lectures de suite** (une recréation `docker compose` tient dans
@@ -233,9 +234,47 @@ all=False`) : un conteneur arrêté disparaît de la réponse. « Conteneur arr�
   par minute, un plafond de 240 états/min, et un **renvoi toutes les 6 h** d'une valeur inchangée
   (le cœur marque une valeur « trop ancienne » après 48 h, `DEVICE_STATE_NUMBER_OF_HOURS_BEFORE_STATE_IS_OUTDATED`).
 
+- **Relecture indépendante (13/10/2026)**, corrigé et figé par des tests : un proxy inverse devant un
+  Glances arrêté répond **502/503/504**, traité comme injoignable ; « Mettre à jour » dans
+  Découverte peut ajouter des fonctionnalités (swap, conteneurs) dont Gladys avait jeté les valeurs :
+  **`onDeviceUpdated` renvoie tout** ; le budget d'états est **réservé avant la requête** (plusieurs
+  serveurs publient en même temps) ; une nouvelle adresse dans un emplacement oublie ce qui avait été
+  annoncé pour l'ancienne machine ; le « Espace libre » a une borne fixe (la taille d'un dataset ZFS
+  ou btrfs bouge avec le pool, et une borne qui bouge change la structure).
+
 ## Vérifié sur un vrai Glances
 
-(à compléter après les essais Docker)
+Le 13/10/2026, image Docker de l'intégration lancée avec les contraintes du bac à sable de Gladys
+(`--cap-drop ALL --security-opt no-new-privileges --read-only --memory 256m --pids-limit 256`,
+volume `/data`, réseau en pont `gladys-test-glances`, aucun port publié) contre
+`nicolargo/glances:4.5.8-full` et `:3.4.0.5-full` en mode `-w` : sans mot de passe, avec mot de passe
+(fichier `glances.pwd`), avec `--disable-plugin sensors,containers`, et une variante « NAS » (deux
+volumes tmpfs montrés par `[fs] allow=tmpfs`, `[containers] all=True`). **Conteneurs** : le socket
+Docker de l'hôte n'a pas été monté ; un **faux moteur Docker** (API Engine minimale sur un socket Unix
+partagé, script hors dépôt) servait quatre conteneurs aux vrais Glances, qui ont produit eux-mêmes
+les réponses (statut de santé, CPU, mémoire).
+
+- **Sans Gladys** : reconnexion du SDK en backoff, pas de plantage, aucun secret dans les logs,
+  ~20 Mo au repos, arrêt propre sur SIGTERM (code 0).
+- **Client réel** : v4 et v3 détectées ; bon mot de passe (v3, v4), mauvais mot de passe, mauvais
+  utilisateur (`auth`), mot de passe absent (`password_missing`), plugins désactivés (lus sans
+  eux), hôte inconnu, port fermé, HTTPS sur le port HTTP (`unreachable`), sous-chemin sans API
+  (`not_glances`).
+- **Glances 3 avec mot de passe** : chaque requête recalcule le PBKDF2 (≈ 0,5 s de CPU, une requête
+  à la fois ; 9 requêtes parallèles = 4,5 s) quand Glances 4 met le résultat en cache (≈ 7 ms) :
+  d'où la lecture de `/api/3/all` dans ce seul cas.
+- **Glances 4 répond parfois des zéros** pour `cpu` (`total` et `idle` à 0) : à la première lecture,
+  mais aussi après une pause d'une quinzaine de secondes. Valeur ignorée, jamais publiée.
+- **Intégration complète** (faux Gladys du SDK, trois serveurs : v4 « NAS » sans mot de passe, v3
+  avec mot de passe, v4 avec un mauvais mot de passe ; noms en français) : 27 appareils découverts,
+  états à la création, badges de transport, widget validé (`validateWidgetContent`), action « État
+  d'un serveur », « Tester la connexion ». Puis, **dans un second processus** (état gardé dans
+  `/data`) : disque tmpfs rempli à 93,8 % → « Disque presque plein » aux paliers 80, 85 et 90 ;
+  conteneur `mariadb` arrêté → « Conteneur arrêté » à la deuxième lecture ; Glances v3 arrêté →
+  « Serveur injoignable ». Après relecture, une nouvelle passe sous la charge de la machine a émis « Température élevée » sur les vrais capteurs (NVMe à 60 °C, un cœur à 95 °C), confirmée sur deux lectures. Mot de passe jamais transmis à Gladys.
+- Non vérifié : une vraie instance Gladys (rendu du widget, éditeur de scènes, variables dans un
+  message), un vrai moteur
+  Docker ou Podman, Glances sur un vrai NAS (Synology, Unraid, TrueNAS), un proxy inverse en HTTPS.
 
 ## Store
 

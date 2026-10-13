@@ -154,6 +154,8 @@ export const BOUNDS = Object.freeze({
   // bound that moves changes the device structure.
   RATE_MAX_MBPS: 10000,
   MEMORY_MAX_MB: 1048576,
+  // Fixed too: the size of a ZFS or btrfs dataset moves with the pool.
+  DISK_FREE_MAX_GB: 100000,
 });
 
 /** A platform id part from a name Glances gives: as is when safe, hashed otherwise. */
@@ -313,8 +315,8 @@ const BLUEPRINTS = {
         type: TYPE.DATA.SIZE,
         unit: UNIT.GIGABYTE,
         min: 0,
+        max: BOUNDS.DISK_FREE_MAX_GB,
       },
-      max: (disk) => Math.max(1, Math.ceil(disk.size / GIB)),
       digits: 1,
       value: (disk) => (disk?.free === null || disk?.free === undefined ? null : disk.free / GIB),
     },

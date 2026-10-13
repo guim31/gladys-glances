@@ -34,7 +34,7 @@ export function registerHandlers(gladys, options = {}) {
   const ready = new Promise((resolve) => {
     resolveReady = resolve;
   });
-  let started = false;
+  let startup = null;
   const whenReady =
     (fn) =>
     async (...args) => {
@@ -45,13 +45,16 @@ export function registerHandlers(gladys, options = {}) {
   gladys.on('connected', async () => {
     try {
       const config = normalizeConfig(await gladys.getConfig());
-      if (started) {
-        // A reconnection (Gladys restarted): send again what Gladys may have lost.
+      if (startup) {
+        // A reconnection (Gladys restarted): send again what Gladys may have
+        // lost, once the first start is over.
+        await startup.catch(() => {});
         await hub.resync(config);
         return;
       }
-      started = true;
-      await hub.start(config);
+      // Set before any await: two quick connections start the hub once.
+      startup = hub.start(config);
+      await startup;
     } catch (err) {
       logger.error('Initialization failed', err);
       await gladys.setConnectionStatus(false, INIT_FAILED).catch(() => {});
@@ -67,6 +70,10 @@ export function registerHandlers(gladys, options = {}) {
   gladys.onPoll(whenReady((device) => hub.pollDevice(device)));
 
   gladys.onDeviceCreated(whenReady((device) => hub.onDeviceCreated(device)));
+  // "Update" in the Discover tab may add features (swap, containers): their
+  // values were dropped by Gladys until then.
+  gladys.onDeviceUpdated(whenReady((device) => hub.onDeviceCreated(device)));
+  gladys.onDeviceDeleted(whenReady(async (device) => hub.onDeviceDeleted(device)));
 
   gladys.onConfigUpdated(
     whenReady(async (newConfig) => {

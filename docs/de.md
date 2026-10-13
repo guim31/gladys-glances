@@ -219,8 +219,9 @@ Die Aktion liest den Server neu, wenn die letzte Lesung älter als 15 Sekunden i
   listet standardmäßig weder tmpfs noch Netzwerkfreigaben (siehe Abschnitt
   `[fs]` der `glances.conf`). In Docker binde das Wurzelverzeichnis des Hosts
   ein (`-v /:/rootfs:ro`).
-- **Der Prozessor fehlt direkt nach dem Start von Glances**: Glances 4 misst
-  bei seiner allerersten Lesung nichts; der Wert kommt bei der nächsten.
+- **Der Prozessor bewegt sich eine Weile nicht**: Glances 4 meldet manchmal
+  überall einen Prozessor von null (bei seiner ersten Lesung oder nach einer
+  Pause); diese Lesung wird übersprungen, der Wert kommt bei der nächsten.
 
 ## Grenzen
 

@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-13
+
 ### Added
 
 - Up to three Glances servers (NAS, home server, PC), read over the local
@@ -38,4 +40,5 @@ the notes of the version's GitHub Release.
 - Interface texts and documentation in English, French, German and Spanish.
 - Apache-2.0 `LICENSE` file.
 
-[Unreleased]: https://github.com/guim31/gladys-glances/commits/main
+[Unreleased]: https://github.com/guim31/gladys-glances/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/guim31/gladys-glances/releases/tag/v1.0.0

@@ -679,3 +679,22 @@ test('a server switched off for a week keeps its history while another is read',
   await world.hub.pollAll();
   assert.ok(world.hub.watcher.hasContainers(2), 'slot 2 not forgotten by a read of slot 1');
 });
+
+test('the timer of the hub reads Glances on its own: Gladys never polls (#3198)', async (t) => {
+  // Gladys 5.2.0 never polls a device created without should_poll: the
+  // states must come from the timer of the container, with no onPoll at all.
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const glances = new FakeGlances();
+  const world = await createWorld({ servers: { [URL_1]: glances }, timers: true });
+  t.after(() => world.app.stop());
+  await createDevices(world, (device) => /:disk:/.test(device.external_id));
+  const used = featureId(world.gladys, DISK, '/mnt/data', FEATURE_KEYS.USED_PERCENT);
+  const before = glances.requests.length;
+  glances.setDisk('/mnt/data', 42);
+  t.mock.timers.tick(30_000); // the default interval
+  for (let i = 0; i < 20 && world.fake.lastState(used) !== 42; i += 1) {
+    await new Promise((resolve) => setImmediate(resolve));
+  }
+  assert.ok(glances.requests.length > before, 'Glances read by the timer');
+  assert.equal(world.fake.lastState(used), 42);
+});

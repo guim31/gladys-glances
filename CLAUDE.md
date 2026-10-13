@@ -44,6 +44,7 @@ src/widgets.js                    dashboard widget `server` (manifest `widgets`)
 src/texts.js                      connection, error, report, summary texts (4 languages), formats
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
 src/store.js                      /data/glances-state.json (what the triggers compare with)
+src/logs.js                       repeated failures logged once, then once when they heal
 gladys-assistant-integration.json manifest: name, config_schema, actions, triggers, widget...
 docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (en and fr mandatory)
 test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
@@ -117,6 +118,13 @@ code de ce dépôt. Compléter ce fichier quand un nouveau piège est découvert
   15000, 30000, 60000). Le template publie `poll_frequency: 300` sans `should_poll` : c'est faux,
   le cœur répond 400 à la découverte. Pour une cadence hors liste, publier `should_poll: false` et
   pousser les états depuis le conteneur, en gardant un `onPoll` de repli.
+  **Issue GladysAssistant/Gladys#3198** (correctif #3199) : un appareil **déjà créé** sans
+  `should_poll` n'est jamais sondé, même après correction du cœur. Ici, tout passe par le minuteur du
+  hub ; `test/hub.test.js` (« #3198 ») prouve qu'il lit Glances sans aucun `onPoll`.
+- **Logs** : en info, seulement le cycle de vie (démarrage, serveur perdu / retrouvé, version de
+  Glances). Seuils franchis, conteneurs arrêtés : debug (`LOG_LEVEL=debug`). Une erreur qui se répète
+  à chaque lecture passe par `createIssueLog` (`src/logs.js`) : une ligne, puis une au retour.
+  `test/logs.test.js` le vérifie.
 - **`min` et `max` sont NOT NULL** dans `t_device_feature`, y compris pour `text/text` : sans eux,
   « Ajouter à Gladys » échoue en HTTP 422. Mettre 0/0, comme Zigbee2MQTT.
 - Un état publié sur une fonctionnalité **pas encore ajoutée** dans Gladys reçoit un 200 puis est

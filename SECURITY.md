@@ -30,6 +30,26 @@ Gladys before reporting a problem.
 
 In scope: the code of this repository and the Docker image it publishes.
 
+What the integration handles:
+
+- **Secrets**: the Glances passwords are `secret` fields of the Gladys
+  configuration. The integration reads them from Gladys at startup, keeps them
+  in memory, sends them only to the Glances server they belong to (HTTP Basic
+  credentials of its REST API), and never writes them to `/data` nor to the
+  logs. The Glances API is read only: a password of Glances opens nothing
+  else on the machine.
+- **Stored in `/data`**: `glances-state.json`, what the scene triggers compare
+  with: the containers seen running (names and timestamps), the disks
+  (mount points) and temperature sensors (labels) whose thresholds were
+  already announced. No address, no figure, no secret.
+- **Network**: requests go only to the Glances addresses typed in the
+  configuration, in HTTP or HTTPS. HTTPS certificates are verified unless the
+  user ticks "Accept self-signed certificates"; the integration opens no port
+  and calls no cloud service. Glances itself serves its API in clear HTTP:
+  keep it on the local network, or behind an HTTPS reverse proxy.
+
 Out of scope: Gladys Assistant itself (see its
 [security policy](https://github.com/GladysAssistant/Gladys/security/policy)),
-and the third-party services and devices the integration talks to.
+Glances itself (see its
+[security policy](https://github.com/nicolargo/glances/security/policy)), and
+the machines it monitors.

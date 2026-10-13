@@ -1,0 +1,8 @@
+{
+  "os_name": "Linux",
+  "hostname": "homeserver",
+  "platform": "64bit",
+  "linux_distro": "Alpine Linux 3.19.1",
+  "os_version": "6.8.0-138-generic",
+  "hr_name": "Alpine Linux 3.19.1 64bit"
+}

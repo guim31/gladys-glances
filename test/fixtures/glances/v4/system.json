@@ -1,0 +1,8 @@
+{
+  "os_name": "Linux",
+  "hostname": "nas",
+  "platform": "64bit",
+  "os_version": "6.8.0-138-generic",
+  "linux_distro": "Alpine Linux 3.24.2",
+  "hr_name": "Alpine Linux 3.24.2 64bit / Linux 6.8.0-138-generic"
+}

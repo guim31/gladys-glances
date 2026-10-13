@@ -1,0 +1,15 @@
+{
+  "total": 16537718784,
+  "available": 4491370496,
+  "percent": 72.8,
+  "used": 12046348288,
+  "free": 254193664,
+  "active": 9216774144,
+  "inactive": 5292806144,
+  "buffers": 334999552,
+  "cached": 4548395008,
+  "shared": 283598848,
+  "percent_min": 72.8,
+  "percent_max": 73.5,
+  "percent_mean": 73.07
+}

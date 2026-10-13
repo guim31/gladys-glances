@@ -1,0 +1,74 @@
+[
+  {
+    "label": "Composite",
+    "unit": "C",
+    "value": 55,
+    "warning": 82,
+    "critical": 84,
+    "type": "temperature_core",
+    "key": "label"
+  },
+  {
+    "label": "Core 0",
+    "unit": "C",
+    "value": 85,
+    "warning": 105,
+    "critical": 105,
+    "type": "temperature_core",
+    "key": "label"
+  },
+  {
+    "label": "Core 1",
+    "unit": "C",
+    "value": 85,
+    "warning": 105,
+    "critical": 105,
+    "type": "temperature_core",
+    "key": "label"
+  },
+  {
+    "label": "Core 2",
+    "unit": "C",
+    "value": 85,
+    "warning": 105,
+    "critical": 105,
+    "type": "temperature_core",
+    "key": "label"
+  },
+  {
+    "label": "Core 3",
+    "unit": "C",
+    "value": 85,
+    "warning": 105,
+    "critical": 105,
+    "type": "temperature_core",
+    "key": "label"
+  },
+  {
+    "label": "Package id 0",
+    "unit": "C",
+    "value": 86,
+    "warning": 105,
+    "critical": 105,
+    "type": "temperature_core",
+    "key": "label"
+  },
+  {
+    "label": "Sensor 1",
+    "unit": "C",
+    "value": 77,
+    "warning": 65261,
+    "critical": 65261,
+    "type": "temperature_core",
+    "key": "label"
+  },
+  {
+    "label": "acpitz 0",
+    "unit": "C",
+    "value": 27,
+    "warning": null,
+    "critical": null,
+    "type": "temperature_core",
+    "key": "label"
+  }
+]

@@ -1,0 +1,137 @@
+[
+  {
+    "key": "name",
+    "name": "jellyfin",
+    "id": "c1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90",
+    "status": "running",
+    "created": "2026-10-01T10:00:00.000000000Z",
+    "command": "run",
+    "io": {
+      "cumulative_ior": 1421312,
+      "cumulative_iow": 2842624,
+      "time_since_update": 4,
+      "ior": 16384,
+      "iow": 32768
+    },
+    "cpu": {
+      "total": 12.0,
+      "limit": 4.0
+    },
+    "memory": {
+      "usage": 1073741824,
+      "limit": 16537718784,
+      "inactive_file": 4194304
+    },
+    "network": {
+      "cumulative_rx": 347000,
+      "cumulative_tx": 173500,
+      "time_since_update": 4,
+      "rx": 4000,
+      "tx": 2000
+    },
+    "io_rx": 4096,
+    "io_wx": 8192,
+    "cpu_percent": 12.0,
+    "memory_percent": null,
+    "network_rx": 1000,
+    "network_tx": 500,
+    "ports": "",
+    "uptime": "3 hours",
+    "image": ["example/image:latest"],
+    "cpu_limit": 4.0,
+    "memory_usage": 1073741824,
+    "memory_inactive_file": 4194304,
+    "memory_limit": 16537718784,
+    "engine": "docker"
+  },
+  {
+    "key": "name",
+    "name": "nextcloud",
+    "id": "a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90",
+    "status": "healthy",
+    "created": "2026-10-01T10:00:00.000000000Z",
+    "command": "run",
+    "io": {
+      "cumulative_ior": 1421312,
+      "cumulative_iow": 2842624,
+      "time_since_update": 4,
+      "ior": 16384,
+      "iow": 32768
+    },
+    "cpu": {
+      "total": 6.0,
+      "limit": 4.0
+    },
+    "memory": {
+      "usage": 524288000,
+      "limit": 16537718784,
+      "inactive_file": 4194304
+    },
+    "network": {
+      "cumulative_rx": 347000,
+      "cumulative_tx": 173500,
+      "time_since_update": 4,
+      "rx": 4000,
+      "tx": 2000
+    },
+    "io_rx": 4096,
+    "io_wx": 8192,
+    "cpu_percent": 6.0,
+    "memory_percent": null,
+    "network_rx": 1000,
+    "network_tx": 500,
+    "ports": "",
+    "uptime": "3 hours",
+    "image": ["example/image:latest"],
+    "cpu_limit": 4.0,
+    "memory_usage": 524288000,
+    "memory_inactive_file": 4194304,
+    "memory_limit": 16537718784,
+    "engine": "docker"
+  },
+  {
+    "key": "name",
+    "name": "mariadb",
+    "id": "b1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90",
+    "status": "running",
+    "created": "2026-10-01T10:00:00.000000000Z",
+    "command": "run",
+    "io": {
+      "cumulative_ior": 1421312,
+      "cumulative_iow": 2842624,
+      "time_since_update": 4,
+      "ior": 16384,
+      "iow": 32768
+    },
+    "cpu": {
+      "total": 2.0,
+      "limit": 4.0
+    },
+    "memory": {
+      "usage": 314572800,
+      "limit": 16537718784,
+      "inactive_file": 4194304
+    },
+    "network": {
+      "cumulative_rx": 347000,
+      "cumulative_tx": 173500,
+      "time_since_update": 4,
+      "rx": 4000,
+      "tx": 2000
+    },
+    "io_rx": 4096,
+    "io_wx": 8192,
+    "cpu_percent": 2.0,
+    "memory_percent": null,
+    "network_rx": 1000,
+    "network_tx": 500,
+    "ports": "",
+    "uptime": "3 hours",
+    "image": ["example/image:latest"],
+    "cpu_limit": 4.0,
+    "memory_usage": 314572800,
+    "memory_inactive_file": 4194304,
+    "memory_limit": 16537718784,
+    "engine": "docker"
+  }
+]

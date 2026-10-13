@@ -1,0 +1,333 @@
+{
+  "_source": "python-glances-api tests/test_responses.py (MIT, Fabian Affolter): RESPONSE (API v3, /all) and RESPONSE_V4 (API v4, /all, partial)",
+  "v3_all": {
+    "cpu": {
+      "total": 10.6,
+      "user": 7.6,
+      "system": 2.1,
+      "idle": 88.8,
+      "nice": 0.0,
+      "iowait": 0.6
+    },
+    "percpu": [
+      {
+        "key": "cpu_number",
+        "cpu_number": 0,
+        "total": 22.1,
+        "user": 7.6,
+        "system": 12.4,
+        "idle": 77.9,
+        "nice": 0.0,
+        "iowait": 0.2,
+        "irq": 0.0,
+        "softirq": 1.8,
+        "steal": 0.0,
+        "guest": 0.0,
+        "guest_nice": 0.0
+      },
+      {
+        "key": "cpu_number",
+        "cpu_number": 1,
+        "total": 17.2,
+        "user": 8.7,
+        "system": 7.8,
+        "idle": 82.8,
+        "nice": 0.0,
+        "iowait": 0.4,
+        "irq": 0.0,
+        "softirq": 0.3,
+        "steal": 0.0,
+        "guest": 0.0,
+        "guest_nice": 0.0
+      }
+    ],
+    "diskio": [
+      {
+        "time_since_update": 1,
+        "disk_name": "nvme0n1",
+        "read_count": 12,
+        "write_count": 466,
+        "read_bytes": 184320,
+        "write_bytes": 23863296,
+        "key": "disk_name"
+      },
+      {
+        "time_since_update": 142.23511338233948,
+        "disk_name": "sda",
+        "read_count": 34,
+        "write_count": 254,
+        "read_bytes": 548864,
+        "write_bytes": 3691520,
+        "key": "disk_name"
+      }
+    ],
+    "containers": {
+      "version": {},
+      "version_podman": {},
+      "containers": [
+        {
+          "key": "name",
+          "name": "container1",
+          "Status": "running",
+          "cpu": {
+            "total": 50.94973493230174
+          },
+          "cpu_percent": 50.94973493230174,
+          "memory": {
+            "usage": 1120321536,
+            "limit": 3976318976,
+            "rss": 480641024,
+            "cache": 580915200,
+            "max_usage": 1309597696
+          },
+          "memory_usage": 539406336
+        },
+        {
+          "key": "name",
+          "name": "container2",
+          "Status": "running",
+          "cpu": {
+            "total": 26.23567931034483
+          },
+          "cpu_percent": 26.23567931034483,
+          "memory": {
+            "usage": 85139456,
+            "limit": 3976318976,
+            "rss": 33677312,
+            "cache": 35012608,
+            "max_usage": 87650304
+          },
+          "memory_usage": 50126848
+        }
+      ]
+    },
+    "fs": [
+      {
+        "device_name": "/dev/sda8",
+        "fs_type": "ext4",
+        "mnt_point": "/ssl",
+        "size": 511320748032,
+        "used": 32910458880,
+        "free": 457917374464,
+        "percent": 6.7,
+        "key": "mnt_point"
+      },
+      {
+        "device_name": "/dev/sda8",
+        "fs_type": "ext4",
+        "mnt_point": "/media",
+        "size": 511320748032,
+        "used": 32910458880,
+        "free": 457917374464,
+        "percent": 6.7,
+        "key": "mnt_point"
+      }
+    ],
+    "gpu": [
+      {
+        "key": "gpu_id",
+        "gpu_id": 0,
+        "name": "NVIDIA GeForce RTX 4080",
+        "mem": 13.333489176233513,
+        "proc": 12,
+        "temperature": 38,
+        "fan_speed": 30
+      },
+      {
+        "key": "gpu_id",
+        "gpu_id": 1,
+        "name": "NVIDIA GeForce RTX 3080",
+        "mem": 8.41064453125,
+        "proc": 26,
+        "temperature": 51,
+        "fan_speed": 0
+      }
+    ],
+    "mem": {
+      "total": 3976318976,
+      "available": 2878337024,
+      "percent": 27.6,
+      "used": 1097981952,
+      "free": 2878337024,
+      "active": 567971840,
+      "inactive": 1679704064,
+      "buffers": 149807104,
+      "cached": 1334816768,
+      "shared": 1499136
+    },
+    "network": [
+      {
+        "cumulative_cx": 19027046,
+        "cumulative_rx": 9513523,
+        "cumulative_tx": 9513523,
+        "cx": 23770,
+        "interface_name": "lo",
+        "is_up": true,
+        "key": "interface_name",
+        "rx": 11885,
+        "speed": 0,
+        "time_since_update": 1.55433297157288,
+        "tx": 11885
+      },
+      {
+        "cumulative_cx": 0,
+        "cumulative_rx": 0,
+        "cumulative_tx": 0,
+        "cx": 0,
+        "interface_name": "bond0",
+        "is_up": false,
+        "key": "interface_name",
+        "rx": 0,
+        "speed": 68718428160,
+        "time_since_update": 1.55433297157288,
+        "tx": 0
+      },
+      {
+        "cumulative_cx": 0,
+        "cumulative_rx": 0,
+        "cumulative_tx": 0,
+        "cx": 0,
+        "interface_name": "dummy0",
+        "is_up": false,
+        "key": "interface_name",
+        "rx": 0,
+        "speed": 0,
+        "time_since_update": 1.55433297157288,
+        "tx": 0
+      },
+      {
+        "cumulative_cx": 704585,
+        "cumulative_rx": 518329,
+        "cumulative_tx": 186256,
+        "cx": 15463,
+        "interface_name": "eth0",
+        "is_up": true,
+        "key": "interface_name",
+        "rx": 6144,
+        "speed": 10485760000,
+        "time_since_update": 1.55433297157288,
+        "tx": 9319
+      },
+      {
+        "cumulative_cx": 0,
+        "cumulative_rx": 0,
+        "cumulative_tx": 0,
+        "cx": 0,
+        "interface_name": "tunl0",
+        "is_up": false,
+        "key": "interface_name",
+        "rx": 0,
+        "speed": 0,
+        "time_since_update": 1.55433297157288,
+        "tx": 0
+      },
+      {
+        "cumulative_cx": 0,
+        "cumulative_rx": 0,
+        "cumulative_tx": 0,
+        "cx": 0,
+        "interface_name": "sit0",
+        "is_up": false,
+        "key": "interface_name",
+        "rx": 0,
+        "speed": 0,
+        "time_since_update": 1.55433297157288,
+        "tx": 0
+      }
+    ],
+    "sensors": [
+      {
+        "label": "cpu_thermal 1",
+        "value": 59,
+        "warning": null,
+        "critical": null,
+        "unit": "C",
+        "type": "temperature_core",
+        "key": "label"
+      },
+      {
+        "label": "err_temp",
+        "value": "unavailable",
+        "warning": null,
+        "critical": null,
+        "unit": "C",
+        "type": "temperature_hdd",
+        "key": "label"
+      }
+    ],
+    "system": {
+      "os_name": "Linux",
+      "hostname": "fedora-35",
+      "platform": "64bit",
+      "linux_distro": "Fedora Linux 35",
+      "os_version": "5.15.6-200.fc35.x86_64",
+      "hr_name": "Fedora Linux 35 64bit"
+    },
+    "uptime": "3 days, 10:25:20"
+  },
+  "v4_all": {
+    "containers": [
+      {
+        "key": "name",
+        "name": "container1",
+        "id": "1234",
+        "status": "running",
+        "created": "2024-06-07T09:21:57.688106748Z",
+        "command": "./command",
+        "image": ["image1/latest"],
+        "io": {},
+        "memory": {},
+        "network": {},
+        "cpu": {
+          "total": 0.37484029484029485
+        },
+        "cpu_percent": 0.37484029484029485,
+        "memory_usage": null,
+        "uptime": "28 secs",
+        "engine": "docker"
+      },
+      {
+        "key": "name",
+        "name": "container2",
+        "id": "5678",
+        "status": "running",
+        "created": "2023-08-23T21:54:50.745112185Z",
+        "command": "./command",
+        "image": ["image2:latest"],
+        "io": {
+          "cumulative_ior": 36413440,
+          "cumulative_iow": 0
+        },
+        "memory": {},
+        "network": {
+          "cumulative_rx": 12012442,
+          "cumulative_tx": 45791653
+        },
+        "cpu": {
+          "total": 0.0
+        },
+        "cpu_percent": 0.0,
+        "memory_usage": null,
+        "uptime": "3 days",
+        "engine": "docker"
+      }
+    ],
+    "network": [
+      {
+        "bytes_sent": 1070106,
+        "bytes_recv": 163781155,
+        "speed": 1048576000,
+        "key": "interface_name",
+        "interface_name": "eth0",
+        "bytes_all": 164851261,
+        "time_since_update": 25.680001497268677,
+        "bytes_recv_gauge": 5939087689,
+        "bytes_recv_rate_per_sec": 6377770.0,
+        "bytes_sent_gauge": 82538934,
+        "bytes_sent_rate_per_sec": 41670.0,
+        "bytes_all_gauge": 6021626623,
+        "bytes_all_rate_per_sec": 6419441.0
+      }
+    ]
+  }
+}

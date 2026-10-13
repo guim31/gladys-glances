@@ -1,0 +1,30 @@
+[
+  {
+    "interface_name": "lo",
+    "alias": null,
+    "time_since_update": 4.335465431213379,
+    "cumulative_rx": 1434,
+    "rx": 100,
+    "cumulative_tx": 1434,
+    "tx": 100,
+    "cumulative_cx": 2868,
+    "cx": 200,
+    "is_up": true,
+    "speed": 0,
+    "key": "interface_name"
+  },
+  {
+    "interface_name": "eth0",
+    "alias": null,
+    "time_since_update": 4.335465431213379,
+    "cumulative_rx": 32178,
+    "rx": 9291,
+    "cumulative_tx": 33482,
+    "tx": 20972,
+    "cumulative_cx": 65660,
+    "cx": 30263,
+    "is_up": true,
+    "speed": 10485760000,
+    "key": "interface_name"
+  }
+]

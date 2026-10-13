@@ -30,6 +30,7 @@ import {
 import { ERROR_KINDS, GlancesClient } from './glances/client.js';
 import { mainDisk, parseSnapshot } from './glances/model.js';
 import { hostOf } from './config.js';
+import { createIssueLog } from './logs.js';
 import {
   ACTION_TEXT,
   CONNECTION_TEXT,
@@ -111,6 +112,8 @@ export class GlancesHub {
     this.discovered = null;
     this.pollTimer = null;
     this.stopped = false;
+    // Failures that repeat at every read: one line, then one when they heal.
+    this.issues = createIssueLog(logger);
   }
 
   // --- Lifecycle -------------------------------------------------------------
@@ -215,8 +218,9 @@ export class GlancesHub {
     this.pollTimer = setTimeout(async () => {
       try {
         await this.pollAll();
+        this.issues.ok('poll', 'Polling works again');
       } catch (err) {
-        logger.error('Poll failed', err);
+        this.issues.fail('poll', 'error', 'Poll failed', err);
       }
       this.schedulePoll();
     }, this.config.pollIntervalMs);
@@ -336,8 +340,9 @@ export class GlancesHub {
       // Even an empty list: the Discovery tab then shows no stale device.
       await this.gladys.publishDiscoveredDevices(devices);
       this.discovered = key;
+      this.issues.ok('discovery', 'Discovered devices accepted again');
     } catch (err) {
-      logger.warn(`Discovered devices refused: ${err.message}`);
+      this.issues.fail('discovery', 'warn', `Discovered devices refused: ${err.message}`);
     }
   }
 
@@ -453,7 +458,7 @@ export class GlancesHub {
     const childId = (type, name) => deviceIds(this.gladys, type, slot, itemKey(name)).device;
 
     for (const { disk, threshold } of this.watcher.disks(slot, snapshot.disks, now)) {
-      logger.info(`${server} ${disk.mount}: ${disk.percent} % used (step ${threshold} %)`);
+      logger.debug(`${server} ${disk.mount}: ${disk.percent} % used (step ${threshold} %)`);
       widgetChanged = true;
       await this.fireEvent(TRIGGERS.DISK, {
         server: serverDevice,
@@ -466,7 +471,7 @@ export class GlancesHub {
       });
     }
     for (const { sensor, threshold } of this.watcher.sensors(slot, snapshot.sensors, now)) {
-      logger.info(`${server} ${sensor.label}: ${sensor.celsius} °C (step ${threshold} °C)`);
+      logger.debug(`${server} ${sensor.label}: ${sensor.celsius} °C (step ${threshold} °C)`);
       await this.fireEvent(TRIGGERS.TEMPERATURE, {
         server: serverDevice,
         sensor: childId(DEVICE_TYPES.SENSOR, sensor.label),
@@ -478,7 +483,7 @@ export class GlancesHub {
     }
     if (snapshot.containers) {
       for (const { name, status } of this.watcher.containers(slot, snapshot.containers, now)) {
-        logger.info(`${server}: container ${name} stopped (${status})`);
+        logger.debug(`${server}: container ${name} stopped (${status})`);
         widgetChanged = true;
         await this.fireEvent(TRIGGERS.CONTAINER, {
           server: serverDevice,
@@ -505,6 +510,9 @@ export class GlancesHub {
     record.readAt = this.now();
     if (wasError !== err.kind) {
       logger.warn(`${this.label(record)}: ${err.message}`);
+    } else {
+      // The same failure at every read: logged once, "answers again" when it heals.
+      logger.debug(`${this.label(record)}: ${err.message}`);
     }
     // Only silence counts as unreachable: a refused password is a
     // configuration problem, reported by the connection status.
@@ -541,7 +549,8 @@ export class GlancesHub {
     record.retryTimer = setTimeout(() => {
       this.poll(record)
         .then((changed) => this.afterChanges(changed))
-        .catch((err) => logger.error('Retry failed', err));
+        .then(() => this.issues.ok('retry', 'Retry works again'))
+        .catch((err) => this.issues.fail('retry', 'error', 'Retry failed', err));
     }, this.timings.retryMs);
     record.retryTimer.unref?.();
   }
@@ -549,8 +558,9 @@ export class GlancesHub {
   async fireEvent(key, data) {
     try {
       await this.gladys.publishSceneEvent(key, data);
+      this.issues.ok('scene', 'Scene events accepted again');
     } catch (err) {
-      logger.warn(`Scene event ${key} refused: ${err.message}`);
+      this.issues.fail('scene', 'warn', `Scene event ${key} refused: ${err.message}`);
     }
   }
 
@@ -647,8 +657,9 @@ export class GlancesHub {
           this.published.set(externalId, value);
           this.publishedAt.set(externalId, now);
         }
+        this.issues.ok('states', 'States accepted again');
       } catch (err) {
-        logger.warn(`States refused: ${err.message}`);
+        this.issues.fail('states', 'warn', `States refused: ${err.message}`);
         for (let i = 0; i < batch.length; i += 1) {
           const index = this.sentTimes.lastIndexOf(now);
           if (index >= 0) {
@@ -690,8 +701,9 @@ export class GlancesHub {
         for (const entry of batch) {
           this.transports.set(entry.external_id, entry.transport);
         }
+        this.issues.ok('transports', 'Transports accepted again');
       } catch (err) {
-        logger.warn(`Transports refused: ${err.message}`);
+        this.issues.fail('transports', 'warn', `Transports refused: ${err.message}`);
       }
     }
   }
@@ -735,8 +747,9 @@ export class GlancesHub {
     try {
       await this.gladys.setConnectionStatus(status.connected, status.message);
       this.connection = key;
+      this.issues.ok('connection', 'Connection status accepted again');
     } catch (err) {
-      logger.warn(`Connection status refused: ${err.message}`);
+      this.issues.fail('connection', 'warn', `Connection status refused: ${err.message}`);
     }
   }
 

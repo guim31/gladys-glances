@@ -11,6 +11,7 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createLogger } from '@gladysassistant/integration-sdk';
+import { createIssueLog } from './logs.js';
 
 const logger = createLogger({ name: 'glances-store' });
 const FILE_NAME = 'glances-state.json';
@@ -21,6 +22,8 @@ export class Store {
     this.path = join(directory, FILE_NAME);
     this.pending = null;
     this.writing = null;
+    // A /data that refuses writes refuses them at every read: logged once.
+    this.issues = createIssueLog(logger);
   }
 
   async load() {
@@ -49,8 +52,9 @@ export class Store {
           const temporary = `${this.path}.tmp`;
           await writeFile(temporary, JSON.stringify(snapshot));
           await rename(temporary, this.path);
+          this.issues.ok('write', `${this.path} written again`);
         } catch (err) {
-          logger.warn(`Cannot write ${this.path}: ${err.message}`);
+          this.issues.fail('write', 'warn', `Cannot write ${this.path}: ${err.message}`);
         }
       });
       this.writing = this.pending;

@@ -10,6 +10,13 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Changed
+
+- Quieter logs: disk, temperature and container alerts are no longer written
+  at the info level (they stay visible with `LOG_LEVEL=debug`), and a failure
+  that repeats at every read (Gladys unavailable, `/data` not writable) is
+  written once, then once when it is over.
+
 ## [1.0.0] - 2026-10-13
 
 ### Added

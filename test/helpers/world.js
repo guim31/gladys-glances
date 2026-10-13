@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
 // A complete test world: the SDK's fake Gladys, fake Glances servers on a
 // fake network, a temporary /data and a manual clock, with the integration
-// wired on top through registerHandlers. No timer runs: the tests read the
-// servers with `world.hub.pollAll()`.
+// wired on top through registerHandlers. No timer runs unless `timers` is set:
+// the tests read the servers with `world.hub.pollAll()`.
 // -----------------------------------------------------------------------------
 
 import { mkdtempSync } from 'node:fs';
@@ -38,6 +38,7 @@ export function createClock(start = Date.UTC(2026, 9, 13, 10, 0, 0)) {
  * @param {object} [options.config] raw integration config
  * @param {Array} [options.devices] devices already created in Gladys
  * @param {boolean} [options.connect]
+ * @param {boolean} [options.timers] the reading timer of the hub (mock.timers)
  */
 export async function createWorld({
   clock = createClock(),
@@ -47,13 +48,14 @@ export async function createWorld({
   connect = true,
   dataDir = mkdtempSync(join(tmpdir(), 'gladys-glances-')),
   timings = {},
+  timers = false,
 } = {}) {
   const network = createNetwork(servers ?? { [URL_1]: new FakeGlances() });
   const gladys = createFakeGladys({ config, devices });
   const app = registerHandlers(gladys, {
     store: new Store(dataDir),
     request: network.request,
-    timers: false,
+    timers,
     timings,
     now: clock.now,
   });
